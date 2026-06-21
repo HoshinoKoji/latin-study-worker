@@ -243,10 +243,14 @@ body {
 }
 
 .back-to-chapters:hover,
-.back-to-chapters:focus,
+.back-to-chapters:focus {
+  border-color: #ded8ca;
+  background: #fffaf0;
+  outline: none;
+}
+
 .section-link:hover,
 .section-link:focus {
-  border-color: #ded8ca;
   background: #fffaf0;
   outline: none;
 }
