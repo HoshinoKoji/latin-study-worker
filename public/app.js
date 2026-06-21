@@ -2,7 +2,7 @@ const chapterList = document.querySelector("#chapter-list");
 const chapterContent = document.querySelector("#chapter-content");
 
 init().catch((error) => {
-  chapterList.textContent = "加载失败";
+  chapterList.textContent = "Failed to load chapters.";
   chapterContent.innerHTML = `<p class="error">${escapeHtml(error.message)}</p>`;
 });
 
@@ -28,27 +28,28 @@ async function init() {
 
 async function renderChapter(id) {
   const chapter = await fetchJson(`/api/chapters/${id}`);
+  const summary = chapter.summary.en ?? chapter.summary.zh ?? "";
 
   chapterContent.innerHTML = `
-    <h2>${escapeHtml(chapter.title)}</h2>
-    <section>
-      <h3>课文摘要</h3>
-      <p>${escapeHtml(chapter.summary.zh)}</p>
+    <header class="chapter-header">
+      <p class="eyebrow">Capitulum ${chapter.id}</p>
+      <h2>${escapeHtml(chapter.title)}</h2>
+      <p>${escapeHtml(summary)}</p>
       <p class="keywords">${chapter.summary.latinKeywords.map(escapeHtml).join(" · ")}</p>
-    </section>
+    </header>
 
-    <section>
-      <h3>语法</h3>
+    <section class="content-section">
+      <h3>Grammar</h3>
       ${chapter.grammar.map(renderGrammarCard).join("")}
     </section>
 
-    <section>
-      <h3>词汇</h3>
+    <section class="content-section">
+      <h3>Vocabulary</h3>
       ${renderVocabTable(chapter.vocab)}
     </section>
 
-    <section>
-      <h3>练习</h3>
+    <section class="content-section">
+      <h3>Exercises</h3>
       ${chapter.exercises.map((exercise) => renderExercise(chapter.id, exercise)).join("")}
     </section>
   `;
@@ -61,7 +62,10 @@ function renderGrammarCard(item) {
       <p>${escapeHtml(item.explanation)}</p>
       <ul>
         ${item.examples
-          .map((example) => `<li><em>${escapeHtml(example.latin)}</em> — ${escapeHtml(example.zh)}</li>`)
+          .map((example) => {
+            const translation = example.translation ?? example.en ?? example.zh ?? "";
+            return `<li><em>${escapeHtml(example.latin)}</em> — ${escapeHtml(translation)}</li>`;
+          })
           .join("")}
       </ul>
     </article>
@@ -70,32 +74,34 @@ function renderGrammarCard(item) {
 
 function renderVocabTable(vocab) {
   return `
-    <table>
-      <thead>
-        <tr>
-          <th>Latin</th>
-          <th>词性</th>
-          <th>decl.</th>
-          <th>gender</th>
-          <th>中文</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${vocab
-          .map(
-            (item) => `
-              <tr>
-                <td><strong>${escapeHtml(item.latin)}</strong></td>
-                <td>${escapeHtml(item.pos ?? "")}</td>
-                <td>${escapeHtml(item.declension ?? "")}</td>
-                <td>${escapeHtml(item.gender ?? "")}</td>
-                <td>${escapeHtml(item.meaning ?? "")}</td>
-              </tr>
-            `
-          )
-          .join("")}
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Latin</th>
+            <th>Part of speech</th>
+            <th>Decl.</th>
+            <th>Gender</th>
+            <th>Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${vocab
+            .map(
+              (item) => `
+                <tr>
+                  <td><strong>${escapeHtml(item.latin)}</strong></td>
+                  <td>${escapeHtml(item.pos ?? "")}</td>
+                  <td>${escapeHtml(item.declension ?? "")}</td>
+                  <td>${escapeHtml(item.gender ?? "")}</td>
+                  <td>${escapeHtml(item.meaning ?? "")}</td>
+                </tr>
+              `
+            )
+            .join("")}
+        </tbody>
+      </table>
+    </div>
   `;
 }
 
@@ -116,7 +122,7 @@ function renderExercise(chapterId, exercise) {
           )
           .join("")}
       </div>
-      <button type="button" class="check-button">检查答案</button>
+      <button type="button" class="check-button">Check answer</button>
       <p class="result" aria-live="polite"></p>
     </article>
   `;
@@ -131,7 +137,7 @@ document.addEventListener("click", async (event) => {
   const result = card.querySelector(".result");
 
   if (!checked) {
-    result.textContent = "请先选择一个答案。";
+    result.textContent = "Choose an answer first.";
     return;
   }
 
@@ -145,7 +151,7 @@ document.addEventListener("click", async (event) => {
     })
   });
 
-  result.textContent = `${response.correct ? "正确" : "不正确"}。答案：${response.expected}。${response.explanation}`;
+  result.textContent = `${response.correct ? "Correct" : "Not quite"}. Answer: ${response.expected}. ${response.explanation}`;
 });
 
 async function fetchJson(url, options) {
