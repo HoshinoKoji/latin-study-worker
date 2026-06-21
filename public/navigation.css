@@ -1,0 +1,8 @@
+.section-link:focus:not(:hover) {
+  background: transparent;
+}
+
+.section-link:focus-visible:not(:hover) {
+  outline: 2px solid #9d7f45;
+  outline-offset: 2px;
+}
