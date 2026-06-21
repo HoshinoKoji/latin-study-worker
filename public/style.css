@@ -291,7 +291,7 @@ textarea.answer-input {
 }
 
 .vocab-wrap {
-  max-width: 760px;
+  max-width: 920px;
 }
 
 table {
@@ -304,15 +304,37 @@ table {
   table-layout: fixed;
 }
 
-.vocab-table th:nth-child(1),
-.vocab-table td:nth-child(1) {
+.vocab-table.has-forms th:nth-child(1),
+.vocab-table.has-forms td:nth-child(1) {
+  width: 22%;
+}
+
+.vocab-table.has-forms th:nth-child(2),
+.vocab-table.has-forms td:nth-child(2) {
+  width: 36%;
+}
+
+.vocab-table.has-forms th:nth-child(3),
+.vocab-table.has-forms td:nth-child(3) {
+  width: 16%;
+  white-space: nowrap;
+}
+
+.vocab-table.no-forms th:nth-child(1),
+.vocab-table.no-forms td:nth-child(1) {
   width: 28%;
 }
 
-.vocab-table th:nth-child(2),
-.vocab-table td:nth-child(2) {
+.vocab-table.no-forms th:nth-child(2),
+.vocab-table.no-forms td:nth-child(2) {
   width: 18%;
   white-space: nowrap;
+}
+
+.vocab-forms {
+  color: #424a5b;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.95rem;
 }
 
 th,
