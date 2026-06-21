@@ -216,6 +216,13 @@ textarea.answer-input {
 
 .case-grid {
   margin: 0.9rem 0 1rem;
+  max-width: 440px;
+}
+
+.morphology-note {
+  margin: 0 0 0.45rem;
+  color: #596070;
+  font-size: 0.92rem;
 }
 
 .case-grid-wrap {
@@ -225,11 +232,12 @@ textarea.answer-input {
 }
 
 .case-grid-table {
-  min-width: 720px;
+  min-width: 360px;
 }
 
 .case-grid-table th,
 .case-grid-table td {
+  padding: 0.65rem;
   text-align: center;
 }
 
@@ -282,10 +290,29 @@ textarea.answer-input {
   background: #ffffff;
 }
 
+.vocab-wrap {
+  max-width: 760px;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
   background: #ffffff;
+}
+
+.vocab-table {
+  table-layout: fixed;
+}
+
+.vocab-table th:nth-child(1),
+.vocab-table td:nth-child(1) {
+  width: 28%;
+}
+
+.vocab-table th:nth-child(2),
+.vocab-table td:nth-child(2) {
+  width: 18%;
+  white-space: nowrap;
 }
 
 th,
