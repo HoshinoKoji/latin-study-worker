@@ -5,6 +5,9 @@ export const capitulum05 = {
     en: "This chapter describes Iūlius's villa, garden, rooms, doors, windows, and where people are located. It focuses on place expressions and forms of first- and second-declension nouns.",
     latinKeywords: ["villa", "hortus", "ātrium", "cubiculum", "ōstium", "fenestra"]
   },
+  vocabOptions: {
+    showForms: true
+  },
   grammar: [
     {
       id: "c5-g1",
@@ -25,14 +28,14 @@ export const capitulum05 = {
     }
   ],
   vocab: [
-    { latin: "villa", pos: "n.", declension: "1st", gender: "f.", meaning: "villa, country house" },
-    { latin: "hortus", pos: "n.", declension: "2nd", gender: "m.", meaning: "garden" },
-    { latin: "ātrium", pos: "n.", declension: "2nd", gender: "n.", meaning: "atrium, main room" },
-    { latin: "cubiculum", pos: "n.", declension: "2nd", gender: "n.", meaning: "bedroom" },
-    { latin: "ōstium", pos: "n.", declension: "2nd", gender: "n.", meaning: "door, entrance" },
-    { latin: "fenestra", pos: "n.", declension: "1st", gender: "f.", meaning: "window" },
-    { latin: "habēre", pos: "v.", meaning: "to have, to hold" },
-    { latin: "vidēre", pos: "v.", meaning: "to see" }
+    { latin: "villa", pos: "n.", forms: { nomSg: "villa", genSg: "villae" }, declension: "1st", gender: "f.", meaning: "villa, country house" },
+    { latin: "hortus", pos: "n.", forms: { nomSg: "hortus", genSg: "hortī" }, declension: "2nd", gender: "m.", meaning: "garden" },
+    { latin: "ātrium", pos: "n.", forms: { nomSg: "ātrium", genSg: "ātriī" }, declension: "2nd", gender: "n.", meaning: "atrium, main room" },
+    { latin: "cubiculum", pos: "n.", forms: { nomSg: "cubiculum", genSg: "cubiculī" }, declension: "2nd", gender: "n.", meaning: "bedroom" },
+    { latin: "ōstium", pos: "n.", forms: { nomSg: "ōstium", genSg: "ōstiī" }, declension: "2nd", gender: "n.", meaning: "door, entrance" },
+    { latin: "fenestra", pos: "n.", forms: { nomSg: "fenestra", genSg: "fenestrae" }, declension: "1st", gender: "f.", meaning: "window" },
+    { latin: "habēre", pos: "v.", principalParts: ["habeō", "habēre", "habuī", "habitum"], conjugation: "2nd conj.", meaning: "to have, to hold" },
+    { latin: "vidēre", pos: "v.", principalParts: ["videō", "vidēre", "vīdī", "vīsum"], conjugation: "2nd conj.", meaning: "to see" }
   ],
   exercises: [
     {
