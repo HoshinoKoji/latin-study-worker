@@ -11,6 +11,8 @@ const sectionNavItems = [
 ];
 
 let activeSectionFrame = 0;
+let lockedSectionId = "";
+let unlockSectionTimer = 0;
 
 const exerciseTypeLabels = {
   multiple_choice: "Multiple choice",
@@ -85,6 +87,7 @@ async function renderChapter(id) {
 function showChapterSelection() {
   sideNav?.classList.remove("has-active-chapter");
   renderSectionNavigation();
+  unlockActiveSection();
 }
 
 function showPageNavigation() {
@@ -146,6 +149,7 @@ function setActiveSectionLink(sectionId) {
 
 function scheduleActiveSectionUpdate() {
   if (!sideNav?.classList.contains("has-active-chapter")) return;
+  if (lockedSectionId) return;
   if (activeSectionFrame) return;
 
   activeSectionFrame = window.requestAnimationFrame(() => {
@@ -155,6 +159,8 @@ function scheduleActiveSectionUpdate() {
 }
 
 function updateActiveSectionFromScroll() {
+  if (lockedSectionId) return;
+
   const sections = sectionNavItems.map((item) => document.getElementById(item.id)).filter(Boolean);
   if (!sections.length) return;
 
@@ -176,6 +182,20 @@ function updateActiveSectionFromScroll() {
   });
 
   setActiveSectionLink(activeSectionId);
+}
+
+function lockActiveSectionDuringAnchorScroll(sectionId) {
+  lockedSectionId = sectionId;
+  setActiveSectionLink(sectionId);
+  window.clearTimeout(unlockSectionTimer);
+  unlockSectionTimer = window.setTimeout(unlockActiveSection, 900);
+}
+
+function unlockActiveSection() {
+  if (!lockedSectionId) return;
+  lockedSectionId = "";
+  window.clearTimeout(unlockSectionTimer);
+  updateActiveSectionFromScroll();
 }
 
 function renderGrammarCard(item) {
@@ -386,6 +406,7 @@ function renderCaseGrid(caseGrid) {
 
 window.addEventListener("scroll", scheduleActiveSectionUpdate, { passive: true });
 window.addEventListener("resize", scheduleActiveSectionUpdate);
+window.addEventListener("scrollend", unlockActiveSection);
 
 document.addEventListener("click", async (event) => {
   const backButton = event.target.closest(".back-to-chapters");
@@ -396,7 +417,10 @@ document.addEventListener("click", async (event) => {
 
   const sectionLink = event.target.closest(".section-link");
   if (sectionLink) {
-    setActiveSectionLink(sectionLink.dataset.sectionId);
+    event.preventDefault();
+    const sectionId = sectionLink.dataset.sectionId;
+    lockActiveSectionDuringAnchorScroll(sectionId);
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
     return;
   }
 
