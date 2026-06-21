@@ -245,8 +245,7 @@ body {
 .back-to-chapters:hover,
 .back-to-chapters:focus,
 .section-link:hover,
-.section-link:focus,
-.section-link.is-active {
+.section-link:focus {
   border-color: #ded8ca;
   background: #fffaf0;
   outline: none;
