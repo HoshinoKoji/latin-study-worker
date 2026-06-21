@@ -24,7 +24,7 @@ export default {
         Object.values(chapters).map(({ id, title, summary }) => ({
           id,
           title,
-          summary: summary.zh
+          summary: summary.en ?? summary.zh ?? ""
         }))
       );
     }
