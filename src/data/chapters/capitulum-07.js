@@ -5,6 +5,9 @@ export const capitulum07 = {
     en: "This chapter centers on puella, rosa, ancilla, and domina. It focuses on direct objects, indirect objects, giving and showing, and singular/plural forms.",
     latinKeywords: ["puella", "rosa", "ancilla", "domina", "dare", "ostendere"]
   },
+  vocabOptions: {
+    showForms: true
+  },
   grammar: [
     {
       id: "c7-g1",
@@ -24,12 +27,12 @@ export const capitulum07 = {
     }
   ],
   vocab: [
-    { latin: "puella", pos: "n.", declension: "1st", gender: "f.", meaning: "girl" },
-    { latin: "rosa", pos: "n.", declension: "1st", gender: "f.", meaning: "rose" },
-    { latin: "ancilla", pos: "n.", declension: "1st", gender: "f.", meaning: "maid, female servant" },
-    { latin: "domina", pos: "n.", declension: "1st", gender: "f.", meaning: "mistress, lady of the house" },
-    { latin: "dare", pos: "v.", meaning: "to give" },
-    { latin: "ostendere", pos: "v.", meaning: "to show, to point out" }
+    { latin: "puella", pos: "n.", forms: { nomSg: "puella", genSg: "puellae" }, declension: "1st", gender: "f.", meaning: "girl" },
+    { latin: "rosa", pos: "n.", forms: { nomSg: "rosa", genSg: "rosae" }, declension: "1st", gender: "f.", meaning: "rose" },
+    { latin: "ancilla", pos: "n.", forms: { nomSg: "ancilla", genSg: "ancillae" }, declension: "1st", gender: "f.", meaning: "maid, female servant" },
+    { latin: "domina", pos: "n.", forms: { nomSg: "domina", genSg: "dominae" }, declension: "1st", gender: "f.", meaning: "mistress, lady of the house" },
+    { latin: "dare", pos: "v.", principalParts: ["dō", "dare", "dedī", "datum"], conjugation: "1st conj.", meaning: "to give" },
+    { latin: "ostendere", pos: "v.", principalParts: ["ostendō", "ostendere", "ostendī", "ostensum"], conjugation: "3rd conj.", meaning: "to show, to point out" }
   ],
   exercises: [
     {
