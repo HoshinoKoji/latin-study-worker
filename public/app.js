@@ -1,3 +1,4 @@
+const sideNav = document.querySelector(".side-nav");
 const chapterList = document.querySelector("#chapter-list");
 const sectionList = document.querySelector("#section-list");
 const chapterContent = document.querySelector("#chapter-content");
@@ -23,7 +24,7 @@ init().catch((error) => {
 });
 
 async function init() {
-  renderSectionNavigation();
+  showChapterSelection();
 
   const chapters = await fetchJson("/api/chapters");
   chapterList.innerHTML = chapters
@@ -73,27 +74,43 @@ async function renderChapter(id) {
   `;
 
   setActiveChapterButton(chapter.id);
-  renderSectionNavigation(chapter.id);
+  renderSectionNavigation(chapter);
+  showPageNavigation();
   setActiveSectionLink("chapter-overview");
 }
 
-function renderSectionNavigation(chapterId) {
+function showChapterSelection() {
+  sideNav?.classList.remove("has-active-chapter");
+  renderSectionNavigation();
+}
+
+function showPageNavigation() {
+  sideNav?.classList.add("has-active-chapter");
+}
+
+function renderSectionNavigation(chapter) {
   if (!sectionList) return;
 
-  if (!chapterId) {
-    sectionList.innerHTML = `<p class="muted nav-placeholder">Select a chapter to show section links.</p>`;
+  if (!chapter) {
+    sectionList.innerHTML = "";
     return;
   }
 
-  sectionList.innerHTML = sectionNavItems
-    .map(
-      (item) => `
-        <a class="section-link" href="#${item.id}" data-section-id="${item.id}">
-          ${escapeHtml(item.label)}
-        </a>
-      `
-    )
-    .join("");
+  sectionList.innerHTML = `
+    <button class="back-to-chapters" type="button">← Choose chapter</button>
+    <p class="current-chapter">${escapeHtml(chapter.title)}</p>
+    <div class="section-links">
+      ${sectionNavItems
+        .map(
+          (item) => `
+            <a class="section-link" href="#${item.id}" data-section-id="${item.id}">
+              ${escapeHtml(item.label)}
+            </a>
+          `
+        )
+        .join("")}
+    </div>
+  `;
 }
 
 function setActiveChapterButton(chapterId) {
@@ -331,6 +348,12 @@ function renderCaseGrid(caseGrid) {
 }
 
 document.addEventListener("click", async (event) => {
+  const backButton = event.target.closest(".back-to-chapters");
+  if (backButton) {
+    showChapterSelection();
+    return;
+  }
+
   const sectionLink = event.target.closest(".section-link");
   if (sectionLink) {
     setActiveSectionLink(sectionLink.dataset.sectionId);
