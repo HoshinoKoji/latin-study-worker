@@ -158,6 +158,41 @@ body {
   margin-top: 0;
 }
 
+.exercise-type {
+  display: inline-flex;
+  margin: 0 0 0.65rem;
+  padding: 0.18rem 0.52rem;
+  border-radius: 999px;
+  background: #f0eadc;
+  color: #6f5a2f;
+  font-size: 0.74rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.answer-input {
+  display: block;
+  width: 100%;
+  margin: 0.9rem 0;
+  padding: 0.72rem 0.82rem;
+  border: 1px solid #d8cfbf;
+  border-radius: 0.65rem;
+  background: #fffdf8;
+  color: #172033;
+  font: inherit;
+}
+
+textarea.answer-input {
+  resize: vertical;
+}
+
+.answer-input:focus {
+  border-color: #9d7f45;
+  box-shadow: 0 0 0 3px rgb(157 127 69 / 0.13);
+  outline: none;
+}
+
 .table-wrap {
   overflow-x: auto;
   border: 1px solid #e4ded1;
