@@ -93,13 +93,18 @@ export const capitulum07 = {
         { text: "." }
       ],
       caseGrid: {
-        cases: ["nom.", "acc.", "gen.", "dat.", "abl."],
+        cases: ["nom.", "voc.", "acc.", "gen.", "dat.", "abl."],
         numbers: ["sg.", "pl."],
-        declension: "1st"
+        declension: "1st",
+        gender: "f."
       },
-      answer: "dat.; sg.; 1st",
-      acceptableAnswers: ["dative; singular; first", "dat.; singular; 1st", "dative; sg.; 1st"],
-      explanation: "In this sentence, puellae is dat. sg. of a 1st-declension noun."
+      answer: "dat.; sg.; 1st; f.",
+      acceptableAnswers: [
+        "dative; singular; first; feminine",
+        "dat.; singular; 1st; f.",
+        "dative; sg.; 1st; f."
+      ],
+      explanation: "In this sentence, puellae is dat. sg. of a 1st-declension feminine noun."
     },
     {
       id: "c7-transform-1",
