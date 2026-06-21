@@ -5,6 +5,9 @@ export const capitulum06 = {
     en: "This chapter introduces roads, towns, travel, and spatial relationships. It focuses on prepositions, direction, distance, and routes between places.",
     latinKeywords: ["via", "oppidum", "Rōma", "Tūsculum", "prope", "inter"]
   },
+  vocabOptions: {
+    showForms: true
+  },
   grammar: [
     {
       id: "c6-g1",
@@ -25,11 +28,11 @@ export const capitulum06 = {
     }
   ],
   vocab: [
-    { latin: "via", pos: "n.", declension: "1st", gender: "f.", meaning: "road, way" },
-    { latin: "oppidum", pos: "n.", declension: "2nd", gender: "n.", meaning: "town" },
-    { latin: "fluvius", pos: "n.", declension: "2nd", gender: "m.", meaning: "river" },
-    { latin: "īre", pos: "v.", meaning: "to go" },
-    { latin: "abesse", pos: "v.", meaning: "to be away, to be distant" },
+    { latin: "via", pos: "n.", forms: { nomSg: "via", genSg: "viae" }, declension: "1st", gender: "f.", meaning: "road, way" },
+    { latin: "oppidum", pos: "n.", forms: { nomSg: "oppidum", genSg: "oppidī" }, declension: "2nd", gender: "n.", meaning: "town" },
+    { latin: "fluvius", pos: "n.", forms: { nomSg: "fluvius", genSg: "fluviī" }, declension: "2nd", gender: "m.", meaning: "river" },
+    { latin: "īre", pos: "v.", principalParts: ["eō", "īre", "iī", "itum"], conjugation: "irreg.", meaning: "to go" },
+    { latin: "abesse", pos: "v.", principalParts: ["absum", "abesse", "āfuī"], conjugation: "irreg.", meaning: "to be away, to be distant" },
     { latin: "prope", pos: "prep.", meaning: "near" },
     { latin: "inter", pos: "prep.", meaning: "between, among" }
   ],
