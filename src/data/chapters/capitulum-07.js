@@ -41,6 +41,46 @@ export const capitulum07 = {
       explanation: "puellae is dat. and means “to the girl.”"
     },
     {
+      id: "c7-fill-1",
+      type: "fill_blank",
+      question: "Complete the sentence: Ancilla puellae ____ dat.",
+      answer: "rosam",
+      acceptableAnswers: ["rosam."],
+      explanation: "rosam is acc. sg.; it is the direct object, the thing being given."
+    },
+    {
+      id: "c7-short-1",
+      type: "short_answer",
+      question: "Translate into English: Ancilla puellae rosam dat.",
+      answer: "The maid gives a rose to the girl",
+      acceptableAnswers: [
+        "The maid gives the girl a rose",
+        "A maid gives a rose to the girl",
+        "The maid gives a rose to a girl"
+      ],
+      explanation: "Ancilla is the subject, rosam is the direct object, and puellae is the indirect object."
+    },
+    {
+      id: "c7-case-1",
+      type: "case_identification",
+      question: "Identify the case and function of puellae in: Ancilla puellae rosam dat.",
+      answer: "dat.; indirect object",
+      acceptableAnswers: [
+        "dative indirect object",
+        "dat indirect object",
+        "dat. indirect object",
+        "dative; indirect object"
+      ],
+      explanation: "puellae is dat. sg. and marks the recipient: to the girl."
+    },
+    {
+      id: "c7-transform-1",
+      type: "form_transformation",
+      question: "Change rosa to acc. sg.",
+      answer: "rosam",
+      explanation: "First-declension acc. sg. ends in -am, so rosa becomes rosam."
+    },
+    {
       id: "c7-mc-2",
       type: "multiple_choice",
       question: "When a verb is listed by itself in this project, which form should be used?",
