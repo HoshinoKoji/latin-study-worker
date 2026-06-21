@@ -1,5 +1,13 @@
 const chapterList = document.querySelector("#chapter-list");
+const sectionList = document.querySelector("#section-list");
 const chapterContent = document.querySelector("#chapter-content");
+
+const sectionNavItems = [
+  { id: "chapter-overview", label: "Overview" },
+  { id: "chapter-grammar", label: "Grammar" },
+  { id: "chapter-vocabulary", label: "Vocabulary" },
+  { id: "chapter-exercises", label: "Exercises" }
+];
 
 const exerciseTypeLabels = {
   multiple_choice: "Multiple choice",
@@ -15,11 +23,13 @@ init().catch((error) => {
 });
 
 async function init() {
+  renderSectionNavigation();
+
   const chapters = await fetchJson("/api/chapters");
   chapterList.innerHTML = chapters
     .map(
       (chapter) => `
-        <button class="chapter-button" data-chapter-id="${chapter.id}">
+        <button class="chapter-button" type="button" data-chapter-id="${chapter.id}">
           <strong>${escapeHtml(chapter.title)}</strong>
           <span>${escapeHtml(chapter.summary)}</span>
         </button>
@@ -39,28 +49,79 @@ async function renderChapter(id) {
   const summary = chapter.summary.en ?? chapter.summary.zh ?? "";
 
   chapterContent.innerHTML = `
-    <header class="chapter-header">
+    <header class="chapter-header" id="chapter-overview">
       <p class="eyebrow">Capitulum ${chapter.id}</p>
       <h2>${escapeHtml(chapter.title)}</h2>
       <p>${escapeHtml(summary)}</p>
       <p class="keywords">${chapter.summary.latinKeywords.map(escapeHtml).join(" · ")}</p>
     </header>
 
-    <section class="content-section">
+    <section class="content-section" id="chapter-grammar">
       <h3>Grammar</h3>
       ${chapter.grammar.map(renderGrammarCard).join("")}
     </section>
 
-    <section class="content-section">
+    <section class="content-section" id="chapter-vocabulary">
       <h3>Vocabulary</h3>
       ${renderVocabTable(chapter.vocab, chapter.vocabOptions)}
     </section>
 
-    <section class="content-section">
+    <section class="content-section" id="chapter-exercises">
       <h3>Exercises</h3>
       ${chapter.exercises.map((exercise) => renderExercise(chapter.id, exercise)).join("")}
     </section>
   `;
+
+  setActiveChapterButton(chapter.id);
+  renderSectionNavigation(chapter.id);
+  setActiveSectionLink("chapter-overview");
+}
+
+function renderSectionNavigation(chapterId) {
+  if (!sectionList) return;
+
+  if (!chapterId) {
+    sectionList.innerHTML = `<p class="muted nav-placeholder">Select a chapter to show section links.</p>`;
+    return;
+  }
+
+  sectionList.innerHTML = sectionNavItems
+    .map(
+      (item) => `
+        <a class="section-link" href="#${item.id}" data-section-id="${item.id}">
+          ${escapeHtml(item.label)}
+        </a>
+      `
+    )
+    .join("");
+}
+
+function setActiveChapterButton(chapterId) {
+  chapterList.querySelectorAll(".chapter-button").forEach((button) => {
+    const isActive = button.dataset.chapterId === String(chapterId);
+    button.classList.toggle("is-active", isActive);
+
+    if (isActive) {
+      button.setAttribute("aria-current", "page");
+    } else {
+      button.removeAttribute("aria-current");
+    }
+  });
+}
+
+function setActiveSectionLink(sectionId) {
+  if (!sectionList) return;
+
+  sectionList.querySelectorAll(".section-link").forEach((link) => {
+    const isActive = link.dataset.sectionId === sectionId;
+    link.classList.toggle("is-active", isActive);
+
+    if (isActive) {
+      link.setAttribute("aria-current", "true");
+    } else {
+      link.removeAttribute("aria-current");
+    }
+  });
 }
 
 function renderGrammarCard(item) {
@@ -270,6 +331,12 @@ function renderCaseGrid(caseGrid) {
 }
 
 document.addEventListener("click", async (event) => {
+  const sectionLink = event.target.closest(".section-link");
+  if (sectionLink) {
+    setActiveSectionLink(sectionLink.dataset.sectionId);
+    return;
+  }
+
   const caseCell = event.target.closest(".case-cell");
   if (caseCell) {
     const card = caseCell.closest(".exercise");
