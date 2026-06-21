@@ -1,5 +1,18 @@
+const sideNav = document.querySelector(".side-nav");
 const chapterList = document.querySelector("#chapter-list");
+const sectionList = document.querySelector("#section-list");
 const chapterContent = document.querySelector("#chapter-content");
+
+const sectionNavItems = [
+  { id: "chapter-overview", label: "Overview" },
+  { id: "chapter-grammar", label: "Grammar" },
+  { id: "chapter-vocabulary", label: "Vocabulary" },
+  { id: "chapter-exercises", label: "Exercises" }
+];
+
+let activeSectionFrame = 0;
+let lockedSectionId = "";
+let unlockSectionTimer = 0;
 
 const exerciseTypeLabels = {
   multiple_choice: "Multiple choice",
@@ -15,11 +28,13 @@ init().catch((error) => {
 });
 
 async function init() {
+  showChapterSelection();
+
   const chapters = await fetchJson("/api/chapters");
   chapterList.innerHTML = chapters
     .map(
       (chapter) => `
-        <button class="chapter-button" data-chapter-id="${chapter.id}">
+        <button class="chapter-button" type="button" data-chapter-id="${chapter.id}">
           <strong>${escapeHtml(chapter.title)}</strong>
           <span>${escapeHtml(chapter.summary)}</span>
         </button>
@@ -39,28 +54,148 @@ async function renderChapter(id) {
   const summary = chapter.summary.en ?? chapter.summary.zh ?? "";
 
   chapterContent.innerHTML = `
-    <header class="chapter-header">
+    <header class="chapter-header" id="chapter-overview">
       <p class="eyebrow">Capitulum ${chapter.id}</p>
       <h2>${escapeHtml(chapter.title)}</h2>
       <p>${escapeHtml(summary)}</p>
       <p class="keywords">${chapter.summary.latinKeywords.map(escapeHtml).join(" · ")}</p>
     </header>
 
-    <section class="content-section">
+    <section class="content-section" id="chapter-grammar">
       <h3>Grammar</h3>
       ${chapter.grammar.map(renderGrammarCard).join("")}
     </section>
 
-    <section class="content-section">
+    <section class="content-section" id="chapter-vocabulary">
       <h3>Vocabulary</h3>
       ${renderVocabTable(chapter.vocab, chapter.vocabOptions)}
     </section>
 
-    <section class="content-section">
+    <section class="content-section" id="chapter-exercises">
       <h3>Exercises</h3>
       ${chapter.exercises.map((exercise) => renderExercise(chapter.id, exercise)).join("")}
     </section>
   `;
+
+  setActiveChapterButton(chapter.id);
+  renderSectionNavigation(chapter);
+  showPageNavigation();
+  setActiveSectionLink("chapter-overview");
+  updateActiveSectionFromScroll();
+}
+
+function showChapterSelection() {
+  sideNav?.classList.remove("has-active-chapter");
+  renderSectionNavigation();
+  unlockActiveSection();
+}
+
+function showPageNavigation() {
+  sideNav?.classList.add("has-active-chapter");
+}
+
+function renderSectionNavigation(chapter) {
+  if (!sectionList) return;
+
+  if (!chapter) {
+    sectionList.innerHTML = "";
+    return;
+  }
+
+  sectionList.innerHTML = `
+    <button class="back-to-chapters" type="button">← Choose chapter</button>
+    <p class="current-chapter">${escapeHtml(chapter.title)}</p>
+    <div class="section-links">
+      ${sectionNavItems
+        .map(
+          (item) => `
+            <a class="section-link" href="#${item.id}" data-section-id="${item.id}">
+              ${escapeHtml(item.label)}
+            </a>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function setActiveChapterButton(chapterId) {
+  chapterList.querySelectorAll(".chapter-button").forEach((button) => {
+    const isActive = button.dataset.chapterId === String(chapterId);
+    button.classList.toggle("is-active", isActive);
+
+    if (isActive) {
+      button.setAttribute("aria-current", "page");
+    } else {
+      button.removeAttribute("aria-current");
+    }
+  });
+}
+
+function setActiveSectionLink(sectionId) {
+  if (!sectionList) return;
+
+  sectionList.querySelectorAll(".section-link").forEach((link) => {
+    const isActive = link.dataset.sectionId === sectionId;
+    link.classList.toggle("is-active", isActive);
+
+    if (isActive) {
+      link.setAttribute("aria-current", "true");
+    } else {
+      link.removeAttribute("aria-current");
+    }
+  });
+}
+
+function scheduleActiveSectionUpdate() {
+  if (!sideNav?.classList.contains("has-active-chapter")) return;
+  if (lockedSectionId) return;
+  if (activeSectionFrame) return;
+
+  activeSectionFrame = window.requestAnimationFrame(() => {
+    activeSectionFrame = 0;
+    updateActiveSectionFromScroll();
+  });
+}
+
+function updateActiveSectionFromScroll() {
+  if (lockedSectionId) return;
+
+  const sections = sectionNavItems.map((item) => document.getElementById(item.id)).filter(Boolean);
+  if (!sections.length) return;
+
+  const lastSection = sections[sections.length - 1];
+  const isAtPageBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+  if (isAtPageBottom) {
+    setActiveSectionLink(lastSection.id);
+    return;
+  }
+
+  const activationLine = Math.min(window.innerHeight * 0.28, 180);
+  let activeSectionId = sections[0].id;
+
+  sections.forEach((section) => {
+    const { top } = section.getBoundingClientRect();
+    if (top <= activationLine) {
+      activeSectionId = section.id;
+    }
+  });
+
+  setActiveSectionLink(activeSectionId);
+}
+
+function lockActiveSectionDuringAnchorScroll(sectionId) {
+  lockedSectionId = sectionId;
+  setActiveSectionLink(sectionId);
+  window.clearTimeout(unlockSectionTimer);
+  unlockSectionTimer = window.setTimeout(unlockActiveSection, 900);
+}
+
+function unlockActiveSection() {
+  if (!lockedSectionId) return;
+  lockedSectionId = "";
+  window.clearTimeout(unlockSectionTimer);
+  updateActiveSectionFromScroll();
 }
 
 function renderGrammarCard(item) {
@@ -269,7 +404,26 @@ function renderCaseGrid(caseGrid) {
   `;
 }
 
+window.addEventListener("scroll", scheduleActiveSectionUpdate, { passive: true });
+window.addEventListener("resize", scheduleActiveSectionUpdate);
+window.addEventListener("scrollend", unlockActiveSection);
+
 document.addEventListener("click", async (event) => {
+  const backButton = event.target.closest(".back-to-chapters");
+  if (backButton) {
+    showChapterSelection();
+    return;
+  }
+
+  const sectionLink = event.target.closest(".section-link");
+  if (sectionLink) {
+    event.preventDefault();
+    const sectionId = sectionLink.dataset.sectionId;
+    lockActiveSectionDuringAnchorScroll(sectionId);
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+
   const caseCell = event.target.closest(".case-cell");
   if (caseCell) {
     const card = caseCell.closest(".exercise");

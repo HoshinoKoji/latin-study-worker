@@ -10,6 +10,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
 }
@@ -26,10 +30,22 @@ body {
 }
 
 .site-header h1 {
-  margin: 0 0 0.65rem;
-  font-size: clamp(2rem, 4vw, 3.25rem);
-  line-height: 1.08;
-  letter-spacing: -0.04em;
+  margin: 0 0 0.8rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.4rem, 5vw, 4.15rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.site-header h1::after {
+  content: "";
+  display: block;
+  width: 5rem;
+  height: 1px;
+  margin-top: 0.9rem;
+  background: #8a6f38;
 }
 
 .site-header p {
@@ -65,9 +81,58 @@ body {
   box-shadow: 0 8px 24px rgb(23 32 51 / 0.06);
 }
 
-.sidebar-panel h2,
+.sidebar-panel {
+  position: sticky;
+  top: 1rem;
+  align-self: start;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sidebar-panel::-webkit-scrollbar {
+  display: none;
+}
+
+.side-nav {
+  display: grid;
+  gap: 1.35rem;
+}
+
+.side-nav h2,
 .content-panel h2 {
   margin-top: 0;
+}
+
+.side-nav h2 {
+  margin-bottom: 0;
+}
+
+.nav-section {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.section-nav-section {
+  display: none;
+}
+
+.side-nav.has-active-chapter .chapter-nav-section {
+  display: none;
+}
+
+.side-nav.has-active-chapter .section-nav-section {
+  display: grid;
+}
+
+.nav-section h3 {
+  margin: 0;
+  color: #596070;
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .content-panel {
@@ -76,6 +141,7 @@ body {
 }
 
 .chapter-header {
+  scroll-margin-top: 1.25rem;
   margin: -0.25rem -0.25rem 1.75rem;
   padding: 1.5rem 1.5rem 1.35rem;
   border: 1px solid #e7dfcf;
@@ -98,6 +164,7 @@ body {
 }
 
 .content-section {
+  scroll-margin-top: 1.25rem;
   margin-block: 1.75rem;
 }
 
@@ -107,9 +174,16 @@ body {
   letter-spacing: -0.015em;
 }
 
-.chapter-list {
+.chapter-list,
+.section-list,
+.section-links {
   display: grid;
   gap: 0.85rem;
+}
+
+.section-list,
+.section-links {
+  gap: 0.45rem;
 }
 
 .chapter-button {
@@ -121,24 +195,81 @@ body {
   border: 1px solid #ded8ca;
   border-radius: 0.8rem;
   background: #ffffff;
+  color: inherit;
   cursor: pointer;
 }
 
 .chapter-button:hover,
-.chapter-button:focus {
+.chapter-button:focus,
+.chapter-button.is-active {
   border-color: #9d7f45;
   outline: none;
   box-shadow: 0 0 0 3px rgb(157 127 69 / 0.13);
 }
 
+.chapter-button.is-active {
+  background: #fffaf0;
+}
+
 .chapter-button span,
-.keywords {
+.keywords,
+.muted {
   color: #646b7a;
   font-size: 0.92rem;
 }
 
 .keywords {
   margin-top: 0.85rem;
+}
+
+.current-chapter {
+  margin: 0 0 0.4rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid #e4ded1;
+  border-radius: 0.75rem;
+  background: #fffaf0;
+  color: #30384a;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.back-to-chapters,
+.section-link {
+  display: block;
+  width: 100%;
+  padding: 0.62rem 0.78rem;
+  border: 1px solid transparent;
+  border-radius: 0.7rem;
+  background: transparent;
+  color: #30384a;
+  text-align: left;
+  text-decoration: none;
+  font: inherit;
+}
+
+.back-to-chapters {
+  margin-bottom: 0.45rem;
+  border-color: #ded8ca;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.back-to-chapters:hover,
+.back-to-chapters:focus {
+  border-color: #ded8ca;
+  background: #fffaf0;
+  outline: none;
+}
+
+.section-link:hover,
+.section-link:focus {
+  background: #fffaf0;
+  outline: none;
+}
+
+.section-link.is-active {
+  color: #172033;
+  font-weight: 700;
 }
 
 .card {
@@ -401,6 +532,11 @@ th {
   .layout {
     grid-template-columns: 1fr;
     padding: 1rem;
+  }
+
+  .sidebar-panel {
+    position: static;
+    max-height: none;
   }
 
   .content-panel,

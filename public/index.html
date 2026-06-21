@@ -3,22 +3,33 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Latin Study Worker</title>
+    <title>STVDIA LATINA</title>
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
     <header class="site-header">
       <div class="site-header__inner">
         <p class="eyebrow">Lingua Latina Study Tool</p>
-        <h1>Latin Study Worker</h1>
-        <p>Structured study notes for Familia Romana: summaries, grammar, vocabulary, and exercises.</p>
+        <h1>STVDIA LATINA</h1>
+        <p>A Familia Romana study companion: summaries, grammar, vocabulary, and exercises.</p>
       </div>
     </header>
 
     <main class="layout">
       <aside class="panel sidebar-panel">
-        <h2>Chapters</h2>
-        <div id="chapter-list" class="chapter-list">Loading…</div>
+        <nav class="side-nav" aria-labelledby="side-nav-heading">
+          <h2 id="side-nav-heading">Study Navigation</h2>
+
+          <section class="nav-section chapter-nav-section" aria-labelledby="chapter-nav-heading">
+            <h3 id="chapter-nav-heading">Chapters</h3>
+            <div id="chapter-list" class="chapter-list">Loading…</div>
+          </section>
+
+          <section class="nav-section section-nav-section" aria-labelledby="section-nav-heading">
+            <h3 id="section-nav-heading">On this page</h3>
+            <div id="section-list" class="section-list" aria-live="polite"></div>
+          </section>
+        </nav>
       </aside>
 
       <section class="panel content-panel">
