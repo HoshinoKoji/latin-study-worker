@@ -1,6 +1,14 @@
 const chapterList = document.querySelector("#chapter-list");
 const chapterContent = document.querySelector("#chapter-content");
 
+const exerciseTypeLabels = {
+  multiple_choice: "Multiple choice",
+  fill_blank: "Fill in the blank",
+  short_answer: "Short answer",
+  case_identification: "Case identification",
+  form_transformation: "Form transformation"
+};
+
 init().catch((error) => {
   chapterList.textContent = "Failed to load chapters.";
   chapterContent.innerHTML = `<p class="error">${escapeHtml(error.message)}</p>`;
@@ -107,9 +115,22 @@ function renderVocabTable(vocab) {
 
 function renderExercise(chapterId, exercise) {
   const name = `${chapterId}-${exercise.id}`;
+  const label = exerciseTypeLabels[exercise.type] ?? exercise.type;
+
   return `
-    <article class="card exercise" data-chapter-id="${chapterId}" data-exercise-id="${exercise.id}">
-      <h4>${escapeHtml(exercise.question)}</h4>
+    <article class="card exercise" data-chapter-id="${chapterId}" data-exercise-id="${exercise.id}" data-exercise-type="${escapeHtml(exercise.type)}">
+      <p class="exercise-type">${escapeHtml(label)}</p>
+      <h4>${escapeHtml(exercise.question ?? exercise.prompt)}</h4>
+      ${renderExerciseInput(name, exercise)}
+      <button type="button" class="check-button">Check answer</button>
+      <p class="result" aria-live="polite"></p>
+    </article>
+  `;
+}
+
+function renderExerciseInput(name, exercise) {
+  if (exercise.type === "multiple_choice") {
+    return `
       <div class="choices">
         ${exercise.choices
           .map(
@@ -122,9 +143,17 @@ function renderExercise(chapterId, exercise) {
           )
           .join("")}
       </div>
-      <button type="button" class="check-button">Check answer</button>
-      <p class="result" aria-live="polite"></p>
-    </article>
+    `;
+  }
+
+  if (exercise.type === "short_answer") {
+    return `
+      <textarea class="answer-input" name="${escapeHtml(name)}" rows="3" placeholder="Type a short answer"></textarea>
+    `;
+  }
+
+  return `
+    <input class="answer-input" type="text" name="${escapeHtml(name)}" placeholder="Type your answer" autocomplete="off" />
   `;
 }
 
@@ -133,11 +162,11 @@ document.addEventListener("click", async (event) => {
   if (!button) return;
 
   const card = button.closest(".exercise");
-  const checked = card.querySelector("input:checked");
   const result = card.querySelector(".result");
+  const answer = getUserAnswer(card);
 
-  if (!checked) {
-    result.textContent = "Choose an answer first.";
+  if (!answer) {
+    result.textContent = "Enter or choose an answer first.";
     return;
   }
 
@@ -147,12 +176,20 @@ document.addEventListener("click", async (event) => {
     body: JSON.stringify({
       chapterId: card.dataset.chapterId,
       exerciseId: card.dataset.exerciseId,
-      answer: checked.value
+      answer
     })
   });
 
   result.textContent = `${response.correct ? "Correct" : "Not quite"}. Answer: ${response.expected}. ${response.explanation}`;
 });
+
+function getUserAnswer(card) {
+  if (card.dataset.exerciseType === "multiple_choice") {
+    return card.querySelector("input:checked")?.value.trim() ?? "";
+  }
+
+  return card.querySelector(".answer-input")?.value.trim() ?? "";
+}
 
 async function fetchJson(url, options) {
   const response = await fetch(url, options);
