@@ -10,6 +10,8 @@ const sectionNavItems = [
   { id: "chapter-exercises", label: "Exercises" }
 ];
 
+let activeSectionFrame = 0;
+
 const exerciseTypeLabels = {
   multiple_choice: "Multiple choice",
   fill_blank: "Fill in the blank",
@@ -77,6 +79,7 @@ async function renderChapter(id) {
   renderSectionNavigation(chapter);
   showPageNavigation();
   setActiveSectionLink("chapter-overview");
+  updateActiveSectionFromScroll();
 }
 
 function showChapterSelection() {
@@ -139,6 +142,40 @@ function setActiveSectionLink(sectionId) {
       link.removeAttribute("aria-current");
     }
   });
+}
+
+function scheduleActiveSectionUpdate() {
+  if (!sideNav?.classList.contains("has-active-chapter")) return;
+  if (activeSectionFrame) return;
+
+  activeSectionFrame = window.requestAnimationFrame(() => {
+    activeSectionFrame = 0;
+    updateActiveSectionFromScroll();
+  });
+}
+
+function updateActiveSectionFromScroll() {
+  const sections = sectionNavItems.map((item) => document.getElementById(item.id)).filter(Boolean);
+  if (!sections.length) return;
+
+  const lastSection = sections[sections.length - 1];
+  const isAtPageBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+  if (isAtPageBottom) {
+    setActiveSectionLink(lastSection.id);
+    return;
+  }
+
+  const activationLine = Math.min(window.innerHeight * 0.28, 180);
+  let activeSectionId = sections[0].id;
+
+  sections.forEach((section) => {
+    const { top } = section.getBoundingClientRect();
+    if (top <= activationLine) {
+      activeSectionId = section.id;
+    }
+  });
+
+  setActiveSectionLink(activeSectionId);
 }
 
 function renderGrammarCard(item) {
@@ -346,6 +383,9 @@ function renderCaseGrid(caseGrid) {
     </div>
   `;
 }
+
+window.addEventListener("scroll", scheduleActiveSectionUpdate, { passive: true });
+window.addEventListener("resize", scheduleActiveSectionUpdate);
 
 document.addEventListener("click", async (event) => {
   const backButton = event.target.closest(".back-to-chapters");
