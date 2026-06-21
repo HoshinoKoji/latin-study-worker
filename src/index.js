@@ -63,11 +63,12 @@ export default {
       }
 
       const normalizedUserAnswer = normalizeAnswer(payload.answer);
-      const normalizedExpectedAnswer = normalizeAnswer(exercise.answer);
+      const expectedAnswers = getExpectedAnswers(exercise);
+      const correct = expectedAnswers.some((expected) => normalizeAnswer(expected) === normalizedUserAnswer);
 
       return json({
-        correct: normalizedUserAnswer === normalizedExpectedAnswer,
-        expected: exercise.answer,
+        correct,
+        expected: formatExpectedAnswer(exercise.answer),
         explanation: exercise.explanation
       });
     }
@@ -92,6 +93,24 @@ function shuffle(items) {
   return [...items].sort(() => Math.random() - 0.5);
 }
 
+function getExpectedAnswers(exercise) {
+  const primaryAnswers = Array.isArray(exercise.answer) ? exercise.answer : [exercise.answer];
+  return [...primaryAnswers, ...(exercise.acceptableAnswers ?? [])].filter((value) => value !== undefined && value !== null);
+}
+
+function formatExpectedAnswer(answer) {
+  if (Array.isArray(answer)) return answer.join(" / ");
+  return String(answer ?? "");
+}
+
 function normalizeAnswer(value) {
-  return String(value ?? "").trim().toLowerCase();
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase()
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'")
+    .replace(/\s+/g, " ")
+    .replace(/[.;:!?]+$/g, "");
 }
