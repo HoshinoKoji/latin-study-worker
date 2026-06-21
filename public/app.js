@@ -82,14 +82,12 @@ function renderGrammarCard(item) {
 
 function renderVocabTable(vocab) {
   return `
-    <div class="table-wrap">
-      <table>
+    <div class="table-wrap vocab-wrap">
+      <table class="vocab-table">
         <thead>
           <tr>
             <th>Latin</th>
-            <th>Part of speech</th>
-            <th>Decl.</th>
-            <th>Gender</th>
+            <th>Grammar</th>
             <th>Meaning</th>
           </tr>
         </thead>
@@ -99,9 +97,7 @@ function renderVocabTable(vocab) {
               (item) => `
                 <tr>
                   <td><strong>${escapeHtml(item.latin)}</strong></td>
-                  <td>${escapeHtml(item.pos ?? "")}</td>
-                  <td>${escapeHtml(item.declension ?? "")}</td>
-                  <td>${escapeHtml(item.gender ?? "")}</td>
+                  <td>${escapeHtml(renderVocabGrammar(item))}</td>
                   <td>${escapeHtml(item.meaning ?? "")}</td>
                 </tr>
               `
@@ -111,6 +107,15 @@ function renderVocabTable(vocab) {
       </table>
     </div>
   `;
+}
+
+function renderVocabGrammar(item) {
+  if (item.declension || item.gender) {
+    return [item.declension, item.gender].filter(Boolean).join(" ");
+  }
+
+  if (item.pos === "v.") return "v. inf.";
+  return item.pos ?? "";
 }
 
 function renderExercise(chapterId, exercise) {
@@ -179,15 +184,19 @@ function renderExerciseInput(name, exercise) {
 
 function renderCaseGrid(caseGrid) {
   const rows = caseGrid.cases ?? [];
-  const columns = caseGrid.functions ?? [];
+  const columns = caseGrid.numbers ?? caseGrid.functions ?? [];
+  const declension = caseGrid.declension ?? "";
+  const cornerLabel = caseGrid.numbers ? "Case" : "Case";
+  const ariaLabel = caseGrid.numbers ? "Choose case and number" : "Choose case and function";
 
   return `
-    <div class="case-grid" role="group" aria-label="Choose case and function">
+    <div class="case-grid" role="group" aria-label="${escapeHtml(ariaLabel)}">
+      ${declension ? `<p class="morphology-note">Declension: <strong>${escapeHtml(declension)}</strong></p>` : ""}
       <div class="case-grid-wrap">
         <table class="case-grid-table">
           <thead>
             <tr>
-              <th>Case</th>
+              <th>${escapeHtml(cornerLabel)}</th>
               ${columns.map((column) => `<th>${escapeHtml(column)}</th>`).join("")}
             </tr>
           </thead>
@@ -199,7 +208,7 @@ function renderCaseGrid(caseGrid) {
                     <th scope="row">${escapeHtml(row)}</th>
                     ${columns
                       .map((column) => {
-                        const value = `${row}; ${column}`;
+                        const value = [row, column, declension].filter(Boolean).join("; ");
                         return `
                           <td>
                             <button type="button" class="case-cell" data-answer="${escapeHtml(value)}" aria-pressed="false">
