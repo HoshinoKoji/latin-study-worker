@@ -80,7 +80,7 @@ export const capitulum07 = {
       id: "c7-case-1",
       type: "case_identification",
       questionParts: [
-        { text: "Identify the case and function of " },
+        { text: "Identify the morphology of " },
         { text: "puellae", latin: true, target: true },
         { text: " in:" },
         { type: "line_break" },
@@ -91,11 +91,12 @@ export const capitulum07 = {
       ],
       caseGrid: {
         cases: ["nom.", "acc.", "gen.", "dat.", "abl."],
-        functions: ["subject", "direct object", "indirect object", "object of preposition", "possessor"]
+        numbers: ["sg.", "pl."],
+        declension: "1st"
       },
-      answer: "dat.; indirect object",
-      acceptableAnswers: ["dative; indirect object"],
-      explanation: "puellae is dat. sg. and marks the recipient: to the girl."
+      answer: "dat.; sg.; 1st",
+      acceptableAnswers: ["dative; singular; first", "dat.; singular; 1st", "dative; sg.; 1st"],
+      explanation: "In this sentence, puellae is dat. sg. of a 1st-declension noun."
     },
     {
       id: "c7-transform-1",
