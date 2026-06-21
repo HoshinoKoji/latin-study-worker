@@ -40,16 +40,16 @@
   }
 
   .vocab-table td {
-    display: grid;
-    grid-template-columns: 6.75rem minmax(0, 1fr);
-    gap: 0.65rem;
-    align-items: baseline;
+    display: block;
     padding: 0;
     border: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: normal;
+    word-break: normal;
   }
 
   .vocab-table td::before {
+    display: block;
+    margin-bottom: 0.12rem;
     color: #646b7a;
     font-size: 0.74rem;
     font-weight: 750;
@@ -86,12 +86,5 @@
 
   .vocab-forms {
     font-size: 1rem;
-  }
-}
-
-@media (max-width: 420px) {
-  .vocab-table td {
-    grid-template-columns: 1fr;
-    gap: 0.15rem;
   }
 }
