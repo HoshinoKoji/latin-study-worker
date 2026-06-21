@@ -120,12 +120,28 @@ function renderExercise(chapterId, exercise) {
   return `
     <article class="card exercise" data-chapter-id="${chapterId}" data-exercise-id="${exercise.id}" data-exercise-type="${escapeHtml(exercise.type)}">
       <p class="exercise-type">${escapeHtml(label)}</p>
-      <h4>${escapeHtml(exercise.question ?? exercise.prompt)}</h4>
+      <h4 class="exercise-prompt">${renderPrompt(exercise)}</h4>
       ${renderExerciseInput(name, exercise)}
       <button type="button" class="check-button">Check answer</button>
       <p class="result" aria-live="polite"></p>
     </article>
   `;
+}
+
+function renderPrompt(exercise) {
+  if (!Array.isArray(exercise.questionParts)) {
+    return escapeHtml(exercise.question ?? exercise.prompt ?? "");
+  }
+
+  return exercise.questionParts
+    .map((part) => {
+      if (part.type === "line_break") return "<br />";
+      const classes = ["prompt-token"];
+      if (part.latin) classes.push("latin-token");
+      if (part.target) classes.push("target-token");
+      return `<span class="${classes.join(" ")}">${escapeHtml(part.text ?? "")}</span>`;
+    })
+    .join("");
 }
 
 function renderExerciseInput(name, exercise) {
@@ -146,6 +162,10 @@ function renderExerciseInput(name, exercise) {
     `;
   }
 
+  if (exercise.type === "case_identification" && exercise.caseGrid) {
+    return renderCaseGrid(exercise.caseGrid);
+  }
+
   if (exercise.type === "short_answer") {
     return `
       <textarea class="answer-input" name="${escapeHtml(name)}" rows="3" placeholder="Type a short answer"></textarea>
@@ -157,7 +177,62 @@ function renderExerciseInput(name, exercise) {
   `;
 }
 
+function renderCaseGrid(caseGrid) {
+  const rows = caseGrid.cases ?? [];
+  const columns = caseGrid.functions ?? [];
+
+  return `
+    <div class="case-grid" role="group" aria-label="Choose case and function">
+      <div class="case-grid-wrap">
+        <table class="case-grid-table">
+          <thead>
+            <tr>
+              <th>Case</th>
+              ${columns.map((column) => `<th>${escapeHtml(column)}</th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${rows
+              .map(
+                (row) => `
+                  <tr>
+                    <th scope="row">${escapeHtml(row)}</th>
+                    ${columns
+                      .map((column) => {
+                        const value = `${row}; ${column}`;
+                        return `
+                          <td>
+                            <button type="button" class="case-cell" data-answer="${escapeHtml(value)}" aria-pressed="false">
+                              <span class="sr-only">${escapeHtml(value)}</span>
+                            </button>
+                          </td>
+                        `;
+                      })
+                      .join("")}
+                  </tr>
+                `
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
 document.addEventListener("click", async (event) => {
+  const caseCell = event.target.closest(".case-cell");
+  if (caseCell) {
+    const card = caseCell.closest(".exercise");
+    card.querySelectorAll(".case-cell").forEach((cell) => {
+      cell.classList.remove("is-selected");
+      cell.setAttribute("aria-pressed", "false");
+    });
+    caseCell.classList.add("is-selected");
+    caseCell.setAttribute("aria-pressed", "true");
+    return;
+  }
+
   const button = event.target.closest(".check-button");
   if (!button) return;
 
@@ -186,6 +261,10 @@ document.addEventListener("click", async (event) => {
 function getUserAnswer(card) {
   if (card.dataset.exerciseType === "multiple_choice") {
     return card.querySelector("input:checked")?.value.trim() ?? "";
+  }
+
+  if (card.dataset.exerciseType === "case_identification") {
+    return card.querySelector(".case-cell.is-selected")?.dataset.answer.trim() ?? "";
   }
 
   return card.querySelector(".answer-input")?.value.trim() ?? "";
