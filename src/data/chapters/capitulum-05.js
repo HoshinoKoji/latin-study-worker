@@ -2,54 +2,54 @@ export const capitulum05 = {
   id: 5,
   title: "Capitulum V: Villa et Hortus",
   summary: {
-    zh: "本章围绕 Iūlius 的别墅、花园、房间、门窗以及人物所在位置展开，重点训练地点表达和第一、第二变格名词的形式。",
+    en: "This chapter describes Iūlius's villa, garden, rooms, doors, windows, and where people are located. It focuses on place expressions and forms of first- and second-declension nouns.",
     latinKeywords: ["villa", "hortus", "ātrium", "cubiculum", "ōstium", "fenestra"]
   },
   grammar: [
     {
       id: "c5-g1",
       topic: "in + abl.",
-      explanation: "表示静态位置时，in 后接 abl.，例如 in villā, in hortō。",
+      explanation: "When in expresses a static location, it takes the abl., as in in villā and in hortō.",
       examples: [
-        { latin: "Iūlius in villā est.", zh: "尤利乌斯在别墅里。" },
-        { latin: "Puerī in hortō sunt.", zh: "男孩们在花园里。" }
+        { latin: "Iūlius in villā est.", translation: "Iulius is in the villa." },
+        { latin: "Puerī in hortō sunt.", translation: "The boys are in the garden." }
       ]
     },
     {
       id: "c5-g2",
-      topic: "Nom. / acc. 对比",
-      explanation: "nom. 多用于主语，acc. 多用于直接宾语或方向、范围等结构。本阶段重点识别主语和宾语。",
+      topic: "Nom. / acc.",
+      explanation: "The nom. is usually used for the subject, while the acc. is often used for the direct object. At this stage, focus on identifying subjects and objects.",
       examples: [
-        { latin: "Servus dominum videt.", zh: "奴隶看见主人。" }
+        { latin: "Servus dominum videt.", translation: "The slave sees the master." }
       ]
     }
   ],
   vocab: [
-    { latin: "villa", pos: "n.", declension: "1st", gender: "f.", meaning: "别墅" },
-    { latin: "hortus", pos: "n.", declension: "2nd", gender: "m.", meaning: "花园" },
-    { latin: "ātrium", pos: "n.", declension: "2nd", gender: "n.", meaning: "中庭" },
-    { latin: "cubiculum", pos: "n.", declension: "2nd", gender: "n.", meaning: "卧室" },
-    { latin: "ōstium", pos: "n.", declension: "2nd", gender: "n.", meaning: "门口；入口" },
-    { latin: "fenestra", pos: "n.", declension: "1st", gender: "f.", meaning: "窗户" },
-    { latin: "habēre", pos: "v.", meaning: "有，持有" },
-    { latin: "vidēre", pos: "v.", meaning: "看见" }
+    { latin: "villa", pos: "n.", declension: "1st", gender: "f.", meaning: "villa, country house" },
+    { latin: "hortus", pos: "n.", declension: "2nd", gender: "m.", meaning: "garden" },
+    { latin: "ātrium", pos: "n.", declension: "2nd", gender: "n.", meaning: "atrium, main room" },
+    { latin: "cubiculum", pos: "n.", declension: "2nd", gender: "n.", meaning: "bedroom" },
+    { latin: "ōstium", pos: "n.", declension: "2nd", gender: "n.", meaning: "door, entrance" },
+    { latin: "fenestra", pos: "n.", declension: "1st", gender: "f.", meaning: "window" },
+    { latin: "habēre", pos: "v.", meaning: "to have, to hold" },
+    { latin: "vidēre", pos: "v.", meaning: "to see" }
   ],
   exercises: [
     {
       id: "c5-mc-1",
       type: "multiple_choice",
-      question: "in villā 中 villā 是什么格？",
+      question: "What case is villā in in villā?",
       choices: ["nom.", "acc.", "abl.", "gen."],
       answer: "abl.",
-      explanation: "in 表示静态位置时支配 abl.。"
+      explanation: "When in expresses a static location, it governs the abl."
     },
     {
       id: "c5-mc-2",
       type: "multiple_choice",
-      question: "hortus 的 declension 和 gender 是？",
+      question: "What are the declension and gender of hortus?",
       choices: ["1st f.", "2nd m.", "2nd n.", "3rd m."],
       answer: "2nd m.",
-      explanation: "hortus, -ī 是 2nd decl. masculine。"
+      explanation: "hortus, -ī is a 2nd-declension masculine noun."
     }
   ]
 };
