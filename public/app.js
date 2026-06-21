@@ -221,12 +221,17 @@ function renderCaseGrid(caseGrid) {
   const rows = caseGrid.cases ?? [];
   const columns = caseGrid.numbers ?? caseGrid.functions ?? [];
   const declension = caseGrid.declension ?? "";
-  const cornerLabel = caseGrid.numbers ? "Case" : "Case";
+  const gender = caseGrid.gender ?? "";
+  const morphologyParts = [
+    declension ? `Declension: <strong>${escapeHtml(declension)}</strong>` : "",
+    gender ? `Gender: <strong>${escapeHtml(gender)}</strong>` : ""
+  ].filter(Boolean);
+  const cornerLabel = "Case";
   const ariaLabel = caseGrid.numbers ? "Choose case and number" : "Choose case and function";
 
   return `
     <div class="case-grid" role="group" aria-label="${escapeHtml(ariaLabel)}">
-      ${declension ? `<p class="morphology-note">Declension: <strong>${escapeHtml(declension)}</strong></p>` : ""}
+      ${morphologyParts.length ? `<p class="morphology-note">${morphologyParts.join(" · ")}</p>` : ""}
       <div class="case-grid-wrap">
         <table class="case-grid-table">
           <thead>
@@ -243,7 +248,7 @@ function renderCaseGrid(caseGrid) {
                     <th scope="row">${escapeHtml(row)}</th>
                     ${columns
                       .map((column) => {
-                        const value = [row, column, declension].filter(Boolean).join("; ");
+                        const value = [row, column, declension, gender].filter(Boolean).join("; ");
                         return `
                           <td>
                             <button type="button" class="case-cell" data-answer="${escapeHtml(value)}" aria-pressed="false">
