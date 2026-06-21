@@ -53,7 +53,7 @@ async function renderChapter(id) {
 
     <section class="content-section">
       <h3>Vocabulary</h3>
-      ${renderVocabTable(chapter.vocab)}
+      ${renderVocabTable(chapter.vocab, chapter.vocabOptions)}
     </section>
 
     <section class="content-section">
@@ -80,13 +80,16 @@ function renderGrammarCard(item) {
   `;
 }
 
-function renderVocabTable(vocab) {
+function renderVocabTable(vocab, options = {}) {
+  const showForms = options.showForms ?? true;
+
   return `
     <div class="table-wrap vocab-wrap">
-      <table class="vocab-table">
+      <table class="vocab-table ${showForms ? "has-forms" : "no-forms"}">
         <thead>
           <tr>
             <th>Latin</th>
+            ${showForms ? "<th>Forms</th>" : ""}
             <th>Grammar</th>
             <th>Meaning</th>
           </tr>
@@ -97,6 +100,7 @@ function renderVocabTable(vocab) {
               (item) => `
                 <tr>
                   <td><strong>${escapeHtml(item.latin)}</strong></td>
+                  ${showForms ? `<td class="vocab-forms">${escapeHtml(renderVocabForms(item))}</td>` : ""}
                   <td>${escapeHtml(renderVocabGrammar(item))}</td>
                   <td>${escapeHtml(item.meaning ?? "")}</td>
                 </tr>
@@ -109,13 +113,44 @@ function renderVocabTable(vocab) {
   `;
 }
 
+function renderVocabForms(item) {
+  if (item.pos === "n.") {
+    const nomSg = item.forms?.nomSg ?? item.latin;
+    const genSg = item.forms?.genSg ?? inferGenitiveSingular(item);
+    return [nomSg, genSg].filter(Boolean).join(", ");
+  }
+
+  if (item.pos === "v.") {
+    return (item.principalParts ?? [item.latin]).join(", ");
+  }
+
+  return "—";
+}
+
 function renderVocabGrammar(item) {
-  if (item.declension || item.gender) {
+  if (item.pos === "n.") {
     return [item.declension, item.gender].filter(Boolean).join(" ");
   }
 
-  if (item.pos === "v.") return "v. inf.";
+  if (item.pos === "v.") {
+    return item.conjugation ?? "v.";
+  }
+
   return item.pos ?? "";
+}
+
+function inferGenitiveSingular(item) {
+  if (item.declension === "1st" && item.latin.endsWith("a")) {
+    return `${item.latin.slice(0, -1)}ae`;
+  }
+
+  if (item.declension === "2nd") {
+    if (item.latin.endsWith("us") || item.latin.endsWith("um")) {
+      return `${item.latin.slice(0, -2)}ī`;
+    }
+  }
+
+  return "";
 }
 
 function renderExercise(chapterId, exercise) {
