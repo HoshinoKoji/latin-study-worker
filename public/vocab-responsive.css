@@ -1,0 +1,94 @@
+@media (max-width: 640px) {
+  .vocab-wrap {
+    max-width: none;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .vocab-table {
+    display: block;
+    table-layout: auto;
+    background: transparent;
+  }
+
+  .vocab-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .vocab-table tbody {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .vocab-table tr {
+    display: grid;
+    gap: 0.55rem;
+    padding: 0.95rem;
+    border: 1px solid #e4ded1;
+    border-radius: 0.85rem;
+    background: #ffffff;
+  }
+
+  .vocab-table td {
+    display: grid;
+    grid-template-columns: minmax(5.25rem, 32%) minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: baseline;
+    padding: 0;
+    border: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .vocab-table td::before {
+    color: #646b7a;
+    font-size: 0.74rem;
+    font-weight: 750;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .vocab-table.has-forms td:nth-child(1)::before,
+  .vocab-table.no-forms td:nth-child(1)::before {
+    content: "Latin";
+  }
+
+  .vocab-table.has-forms td:nth-child(2)::before {
+    content: "Forms";
+  }
+
+  .vocab-table.has-forms td:nth-child(3)::before,
+  .vocab-table.no-forms td:nth-child(2)::before {
+    content: "Grammar";
+  }
+
+  .vocab-table.has-forms td:nth-child(4)::before,
+  .vocab-table.no-forms td:nth-child(3)::before {
+    content: "Meaning";
+  }
+
+  .vocab-table.has-forms td:nth-child(3),
+  .vocab-table.no-forms td:nth-child(2) {
+    white-space: normal;
+  }
+
+  .vocab-forms {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .vocab-table td {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+}
