@@ -35,7 +35,13 @@ export const capitulum07 = {
     {
       id: "c7-mc-1",
       type: "multiple_choice",
-      question: "In Ancilla puellae rosam dat, what is the function of puellae?",
+      questionParts: [
+        { text: "In " },
+        { text: "Ancilla puellae rosam dat", latin: true },
+        { text: ", what is the function of " },
+        { text: "puellae", latin: true, target: true },
+        { text: "?" }
+      ],
       choices: ["subject", "direct object", "indirect object", "predicate noun"],
       answer: "indirect object",
       explanation: "puellae is dat. and means “to the girl.”"
@@ -43,7 +49,13 @@ export const capitulum07 = {
     {
       id: "c7-fill-1",
       type: "fill_blank",
-      question: "Complete the sentence: Ancilla puellae ____ dat.",
+      questionParts: [
+        { text: "Complete the sentence: " },
+        { text: "Ancilla puellae ", latin: true },
+        { text: "____", latin: true, target: true },
+        { text: " dat", latin: true },
+        { text: "." }
+      ],
       answer: "rosam",
       acceptableAnswers: ["rosam."],
       explanation: "rosam is acc. sg.; it is the direct object, the thing being given."
@@ -51,7 +63,11 @@ export const capitulum07 = {
     {
       id: "c7-short-1",
       type: "short_answer",
-      question: "Translate into English: Ancilla puellae rosam dat.",
+      questionParts: [
+        { text: "Translate into English: " },
+        { text: "Ancilla puellae rosam dat", latin: true, target: true },
+        { text: "." }
+      ],
       answer: "The maid gives a rose to the girl",
       acceptableAnswers: [
         "The maid gives the girl a rose",
@@ -63,20 +79,32 @@ export const capitulum07 = {
     {
       id: "c7-case-1",
       type: "case_identification",
-      question: "Identify the case and function of puellae in: Ancilla puellae rosam dat.",
-      answer: "dat.; indirect object",
-      acceptableAnswers: [
-        "dative indirect object",
-        "dat indirect object",
-        "dat. indirect object",
-        "dative; indirect object"
+      questionParts: [
+        { text: "Identify the case and function of " },
+        { text: "puellae", latin: true, target: true },
+        { text: " in:" },
+        { type: "line_break" },
+        { text: "Ancilla ", latin: true },
+        { text: "puellae", latin: true, target: true },
+        { text: " rosam dat", latin: true },
+        { text: "." }
       ],
+      caseGrid: {
+        cases: ["nom.", "acc.", "gen.", "dat.", "abl."],
+        functions: ["subject", "direct object", "indirect object", "object of preposition", "possessor"]
+      },
+      answer: "dat.; indirect object",
+      acceptableAnswers: ["dative; indirect object"],
       explanation: "puellae is dat. sg. and marks the recipient: to the girl."
     },
     {
       id: "c7-transform-1",
       type: "form_transformation",
-      question: "Change rosa to acc. sg.",
+      questionParts: [
+        { text: "Change " },
+        { text: "rosa", latin: true, target: true },
+        { text: " to acc. sg." }
+      ],
       answer: "rosam",
       explanation: "First-declension acc. sg. ends in -am, so rosa becomes rosam."
     },
