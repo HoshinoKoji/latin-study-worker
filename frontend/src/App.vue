@@ -156,7 +156,7 @@ function expectedAnswerText(result) { return result?.expected ? `${result.explan
     <aside class="sidebar">
       <el-scrollbar class="sidebar-scrollbar" always>
         <div class="sidebar-inner">
-          <div class="brand-block"><p class="eyebrow">Lingua Latīna</p><h1>Latin Study</h1><p>Review chapter summaries, grammar, vocabulary, and exercises.</p></div>
+          <div class="brand-block"><p class="eyebrow">Lingua Latīna</p><h1><a href="https://github.com/HoshinoKoji/latin-study-worker" style="color:inherit;text-decoration:none">Latin Study</a></h1><p>Review chapter summaries, grammar, vocabulary, and exercises.</p></div>
           <div class="chapter-list" v-loading="loading">
             <button v-for="chapter in chapters" :key="chapter.id" class="chapter-card" :class="{ active: currentChapter?.id === chapter.id }" type="button" @click="selectChapter(chapter.id)">
               <span class="chapter-number">Cap. {{ chapter.id }}</span><strong>{{ chapter.title }}</strong><small>{{ chapter.summary }}</small>
