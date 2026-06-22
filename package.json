@@ -4,11 +4,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "vite dev",
+    "dev:worker": "wrangler dev",
+    "build": "vite build",
     "deploy": "wrangler deploy",
     "check": "node --check src/index.js"
   },
+  "dependencies": {
+    "vue": "^3.4.0",
+    "element-plus": "^2.5.0"
+  },
   "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "vite": "^5.0.0",
     "wrangler": "^4.0.0"
   }
 }

@@ -1,7 +1,14 @@
 name = "latin-study-worker"
 main = "src/index.js"
 compatibility_date = "2026-06-21"
-assets = { directory = "./public", binding = "ASSETS", run_worker_first = true }
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+run_worker_first = true
+
+[build]
+command = "npm run build"
 
 # 以后需要持久化时，创建 D1 数据库后取消注释并填入 database_id。
 # [[d1_databases]]
