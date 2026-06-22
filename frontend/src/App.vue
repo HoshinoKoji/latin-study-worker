@@ -13,29 +13,29 @@ const chapterLoading = ref(false);
 const errorMessage = ref('');
 
 const sectionNavItems = [
-  { id: 'overview', label: '概览', hint: '本章线索' },
-  { id: 'grammar', label: '语法', hint: '规则 + 例句' },
-  { id: 'vocabulary', label: '词汇', hint: '按词类整理' },
-  { id: 'exercises', label: '练习', hint: '即时反馈' }
+  { id: 'overview', label: 'Overview', hint: 'Chapter focus' },
+  { id: 'grammar', label: 'Grammar', hint: 'Rules + examples' },
+  { id: 'vocabulary', label: 'Vocabulary', hint: 'Grouped by part of speech' },
+  { id: 'exercises', label: 'Exercises', hint: 'Practice + feedback' }
 ];
 
 const exerciseTypeLabels = {
-  multiple_choice: '选择题',
-  fill_blank: '填空',
-  short_answer: '简答',
-  case_identification: '形态识别',
-  form_transformation: '词形转换'
+  multiple_choice: 'Multiple choice',
+  fill_blank: 'Fill in the blank',
+  short_answer: 'Short answer',
+  case_identification: 'Case identification',
+  form_transformation: 'Form transformation'
 };
 
 const posLabels = {
-  'n.': '名词',
-  'v.': '动词',
-  'adj.': '形容词',
-  'adv.': '副词',
-  'prep.': '介词',
-  'conj.': '连词',
-  'pron.': '代词',
-  'num.': '数词'
+  'n.': 'Nouns',
+  'v.': 'Verbs',
+  'adj.': 'Adjectives',
+  'adv.': 'Adverbs',
+  'prep.': 'Prepositions',
+  'conj.': 'Conjunctions',
+  'pron.': 'Pronouns',
+  'num.': 'Numbers'
 };
 
 onMounted(async () => {
@@ -44,25 +44,20 @@ onMounted(async () => {
 
   try {
     const res = await fetch('/api/chapters');
-    if (!res.ok) throw new Error('Unable to load chapters');
+    if (!res.ok) throw new Error('Unable to load chapters.');
 
     chapters.value = await res.json();
     if (chapters.value.length > 0) {
       await selectChapter(chapters.value[0].id);
     }
   } catch (error) {
-    errorMessage.value = error instanceof Error ? error.message : '加载章节失败';
+    errorMessage.value = error instanceof Error ? error.message : 'Unable to load chapters.';
   } finally {
     loading.value = false;
   }
 });
 
-const chapterSummary = computed(() => {
-  const summary = currentChapter.value?.summary;
-  if (!summary) return '';
-  return summary.zh ?? summary.en ?? '';
-});
-
+const chapterSummary = computed(() => currentChapter.value?.summary?.en ?? '');
 const chapterKeywords = computed(() => currentChapter.value?.summary?.latinKeywords ?? []);
 const grammarItems = computed(() => currentChapter.value?.grammar ?? []);
 const vocabularyItems = computed(() => currentChapter.value?.vocab ?? []);
@@ -94,7 +89,7 @@ const exerciseFilters = computed(() => {
   }
 
   return [
-    { id: 'all', label: `全部 ${exerciseItems.value.length}` },
+    { id: 'all', label: `All ${exerciseItems.value.length}` },
     ...[...counts.entries()].map(([type, count]) => ({
       id: type,
       label: `${exerciseTypeLabels[type] ?? type} ${count}`
@@ -130,7 +125,7 @@ async function selectChapter(id) {
 
   try {
     const res = await fetch('/api/chapters/' + id);
-    if (!res.ok) throw new Error('Unable to load chapter');
+    if (!res.ok) throw new Error('Unable to load this chapter.');
 
     currentChapter.value = await res.json();
     activeSection.value = 'overview';
@@ -139,7 +134,7 @@ async function selectChapter(id) {
     feedback.value = {};
     checking.value = {};
   } catch (error) {
-    errorMessage.value = error instanceof Error ? error.message : '加载章节失败';
+    errorMessage.value = error instanceof Error ? error.message : 'Unable to load this chapter.';
   } finally {
     chapterLoading.value = false;
   }
@@ -168,7 +163,7 @@ async function checkAnswer(exercise) {
       ...feedback.value,
       [exercise.id]: {
         correct: false,
-        explanation: error instanceof Error ? error.message : '提交答案失败',
+        explanation: error instanceof Error ? error.message : 'Unable to check this answer.',
         expected: ''
       }
     };
@@ -193,23 +188,13 @@ function exerciseLabel(type) {
   return exerciseTypeLabels[type] ?? type;
 }
 
+function groupLabel(group) {
+  if (group.key === 'other') return 'Other';
+  return group.label;
+}
+
 function posLabel(pos) {
-  return posLabels[pos] ?? pos ?? '其他';
-}
-
-function declensionLabel(value) {
-  if (!value) return '';
-  const match = String(value).match(/\d+/);
-  return match ? `D${match[0]}` : String(value);
-}
-
-function conjugationLabel(value) {
-  if (!value) return '';
-  const normalized = String(value);
-  const match = normalized.match(/\d+/);
-  if (match) return `C${match[0]}`;
-  if (normalized.includes('irreg')) return 'irreg.';
-  return normalized;
+  return posLabels[pos] ?? pos ?? 'Other';
 }
 
 function formsDisplay(item) {
@@ -218,7 +203,7 @@ function formsDisplay(item) {
   }
 
   if (item.pos === 'v.') {
-    return '不定式';
+    return item.principalParts?.join(', ') ?? item.latin;
   }
 
   if (item.pos === 'adj.' && item.forms) {
@@ -230,14 +215,19 @@ function formsDisplay(item) {
 
 function grammarMeta(item) {
   if (item.pos === 'n.') {
-    return [declensionLabel(item.declension), item.gender].filter(Boolean).join(' · ');
+    return [item.declension, item.gender].filter(Boolean).join(' ');
   }
 
   if (item.pos === 'v.') {
-    return conjugationLabel(item.conjugation);
+    return item.conjugation ?? '';
   }
 
-  return posLabel(item.pos);
+  return item.pos ?? '';
+}
+
+function expectedAnswerText(result) {
+  if (!result?.expected) return result?.explanation ?? '';
+  return `${result.explanation || ''} Expected: ${result.expected}`;
 }
 </script>
 
@@ -246,8 +236,8 @@ function grammarMeta(item) {
     <aside class="sidebar">
       <div class="brand-block">
         <p class="eyebrow">Lingua Latīna</p>
-        <h1>拉丁语学习</h1>
-        <p>按章节复习语法、词汇和练习。</p>
+        <h1>Latin Study</h1>
+        <p>Review chapter summaries, grammar, vocabulary, and exercises.</p>
       </div>
 
       <div class="chapter-list" v-loading="loading">
@@ -275,7 +265,7 @@ function grammarMeta(item) {
         show-icon
       />
 
-      <el-empty v-if="!currentChapter && !loading" description="暂无章节数据" />
+      <el-empty v-if="!currentChapter && !loading" description="No chapter data available" />
 
       <template v-if="currentChapter">
         <section class="hero-panel">
@@ -288,15 +278,15 @@ function grammarMeta(item) {
           <div class="chapter-stats" aria-label="Chapter statistics">
             <div>
               <strong>{{ grammarItems.length }}</strong>
-              <span>语法点</span>
+              <span>Grammar</span>
             </div>
             <div>
               <strong>{{ vocabularyItems.length }}</strong>
-              <span>词汇</span>
+              <span>Words</span>
             </div>
             <div>
               <strong>{{ exerciseItems.length }}</strong>
-              <span>练习</span>
+              <span>Exercises</span>
             </div>
           </div>
         </section>
@@ -318,7 +308,7 @@ function grammarMeta(item) {
           <el-card class="study-card" shadow="never">
             <template #header>
               <div class="card-header">
-                <span>本章学习重点</span>
+                <span>Chapter focus</span>
                 <el-tag effect="plain">Overview</el-tag>
               </div>
             </template>
@@ -338,15 +328,15 @@ function grammarMeta(item) {
           <el-card class="study-card" shadow="never">
             <template #header>
               <div class="card-header">
-                <span>建议学习顺序</span>
+                <span>Suggested study flow</span>
                 <el-tag type="success" effect="plain">Flow</el-tag>
               </div>
             </template>
             <ol class="learning-steps">
-              <li>先扫关键词，确认本章主题和核心句型。</li>
-              <li>读语法卡片，每条只抓一个规则。</li>
-              <li>用词汇区按词类复习，名词重点看 D 与性。</li>
-              <li>最后进入练习区，错题根据解释回到语法卡片。</li>
+              <li>Scan the Latin keywords and chapter focus first.</li>
+              <li>Read the grammar cards one rule at a time.</li>
+              <li>Review vocabulary by part of speech, paying close attention to forms and grammar labels.</li>
+              <li>Finish with exercises, then revisit the grammar card behind each wrong answer.</li>
             </ol>
           </el-card>
         </section>
@@ -381,21 +371,27 @@ function grammarMeta(item) {
             class="vocab-group"
           >
             <div class="section-heading">
-              <h3>{{ group.label }}</h3>
-              <span>{{ group.items.length }} 项</span>
+              <h3>{{ groupLabel(group) }}</h3>
+              <span>{{ group.items.length }} items</span>
             </div>
 
             <div class="vocab-grid">
               <article v-for="item in group.items" :key="`${group.key}-${item.latin}-${item.meaning}`" class="vocab-card">
                 <div class="vocab-main">
                   <strong class="latin-token">{{ item.latin }}</strong>
-                  <el-tag size="small" effect="plain">{{ posLabel(item.pos) }}</el-tag>
+                  <el-tag size="small" effect="plain">{{ item.pos }}</el-tag>
                 </div>
                 <p>{{ item.meaning }}</p>
-                <div class="vocab-meta">
-                  <span v-if="formsDisplay(item)">{{ formsDisplay(item) }}</span>
-                  <span v-if="grammarMeta(item)">{{ grammarMeta(item) }}</span>
-                </div>
+                <dl class="vocab-details">
+                  <div v-if="formsDisplay(item)">
+                    <dt>Forms</dt>
+                    <dd>{{ formsDisplay(item) }}</dd>
+                  </div>
+                  <div v-if="grammarMeta(item)">
+                    <dt>Grammar</dt>
+                    <dd>{{ grammarMeta(item) }}</dd>
+                  </div>
+                </dl>
               </article>
             </div>
           </div>
@@ -406,8 +402,8 @@ function grammarMeta(item) {
             <div class="progress-layout">
               <div>
                 <p class="eyebrow">Practice</p>
-                <h3>练习进度</h3>
-                <p>{{ answeredCount }} / {{ exerciseItems.length }} 已提交，{{ correctCount }} 题正确。</p>
+                <h3>Exercise progress</h3>
+                <p>{{ answeredCount }} / {{ exerciseItems.length }} submitted, {{ correctCount }} correct.</p>
               </div>
               <el-progress type="dashboard" :percentage="progressPercentage" />
             </div>
@@ -450,7 +446,7 @@ function grammarMeta(item) {
               <div v-if="exercise.caseGrid" class="case-hints">
                 <span v-for="caseName in exercise.caseGrid.cases" :key="caseName">{{ caseName }}</span>
                 <span v-for="number in exercise.caseGrid.numbers" :key="number">{{ number }}</span>
-                <span>{{ declensionLabel(exercise.caseGrid.declension) }}</span>
+                <span>{{ exercise.caseGrid.declension }}</span>
                 <span>{{ exercise.caseGrid.gender }}</span>
               </div>
 
@@ -471,11 +467,11 @@ function grammarMeta(item) {
                   v-model="answers[exercise.id]"
                   type="textarea"
                   :rows="3"
-                  placeholder="输入英文答案"
+                  placeholder="Type your answer in English"
                 />
               </div>
               <div v-else class="answer-control">
-                <el-input v-model="answers[exercise.id]" placeholder="输入答案" />
+                <el-input v-model="answers[exercise.id]" placeholder="Type your answer" />
               </div>
 
               <el-button
@@ -483,13 +479,13 @@ function grammarMeta(item) {
                 :loading="checking[exercise.id]"
                 @click="checkAnswer(exercise)"
               >
-                检查答案
+                Check answer
               </el-button>
 
               <el-alert
                 v-if="feedback[exercise.id]?.correct"
                 class="feedback-alert"
-                title="正确"
+                title="Correct"
                 type="success"
                 :description="feedback[exercise.id].explanation"
                 show-icon
@@ -497,9 +493,9 @@ function grammarMeta(item) {
               <el-alert
                 v-else-if="feedback[exercise.id]"
                 class="feedback-alert"
-                title="需要复习"
+                title="Review this point"
                 type="error"
-                :description="`${feedback[exercise.id].explanation || ''} 正确答案：${feedback[exercise.id].expected || ''}`"
+                :description="expectedAnswerText(feedback[exercise.id])"
                 show-icon
               />
             </el-card>
@@ -513,8 +509,8 @@ function grammarMeta(item) {
 <style scoped>
 :global(body) {
   margin: 0;
-  background: #f5efe5;
-  color: #2d2418;
+  background: var(--page-bg);
+  color: var(--ink);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
@@ -523,9 +519,30 @@ function grammarMeta(item) {
 }
 
 .app-shell {
+  --page-bg: #f3eee6;
+  --sidebar-bg: #2f2a22;
+  --sidebar-panel: #3b342a;
+  --sidebar-panel-active: #4a4034;
+  --surface: #fbf7ef;
+  --surface-soft: #f7f0e6;
+  --surface-muted: #eee4d5;
+  --border: #ded1bf;
+  --border-strong: #c9b69d;
+  --ink: #302820;
+  --ink-muted: #6f6255;
+  --ink-soft: #8a7a68;
+  --accent: #8a5a2b;
+  --accent-strong: #6f421d;
+  --accent-soft: #ead8bf;
+  --accent-wash: #f1e3d0;
+  --sidebar-ink: #f8efe2;
+  --sidebar-muted: #cfc1ad;
+  --shadow: 0 18px 48px rgba(73, 54, 34, 0.10);
+
   min-height: 100vh;
   display: grid;
   grid-template-columns: minmax(280px, 360px) 1fr;
+  background: var(--page-bg);
 }
 
 .sidebar {
@@ -534,8 +551,9 @@ function grammarMeta(item) {
   height: 100vh;
   overflow: auto;
   padding: 2rem;
-  background: linear-gradient(180deg, #332313 0%, #5d3c1c 100%);
-  color: #fff8ed;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-ink);
+  border-right: 1px solid rgba(222, 209, 191, 0.16);
 }
 
 .brand-block {
@@ -555,21 +573,21 @@ function grammarMeta(item) {
 }
 
 .brand-block p:last-child {
-  color: rgba(255, 248, 237, 0.72);
+  color: var(--sidebar-muted);
   line-height: 1.7;
 }
 
 .eyebrow {
   margin: 0 0 0.5rem;
+  color: var(--accent);
   font-size: 0.75rem;
-  color: #a87435;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
   font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .sidebar .eyebrow {
-  color: #f2c078;
+  color: #d5b98f;
 }
 
 .chapter-list {
@@ -579,10 +597,10 @@ function grammarMeta(item) {
 
 .chapter-card {
   width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(222, 209, 191, 0.14);
   border-radius: 1.25rem;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--sidebar-panel);
   color: inherit;
   text-align: left;
   cursor: pointer;
@@ -592,8 +610,8 @@ function grammarMeta(item) {
 .chapter-card:hover,
 .chapter-card.active {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.17);
-  border-color: rgba(255, 255, 255, 0.45);
+  background: var(--sidebar-panel-active);
+  border-color: rgba(213, 185, 143, 0.58);
 }
 
 .chapter-card strong,
@@ -608,13 +626,13 @@ function grammarMeta(item) {
 }
 
 .chapter-card small {
-  color: rgba(255, 248, 237, 0.72);
+  color: var(--sidebar-muted);
   line-height: 1.45;
 }
 
 .chapter-number {
+  color: #d5b98f;
   font-size: 0.75rem;
-  color: #f2c078;
   font-weight: 700;
 }
 
@@ -633,24 +651,24 @@ function grammarMeta(item) {
   gap: 1.5rem;
   align-items: end;
   padding: clamp(1.25rem, 4vw, 2.5rem);
+  border: 1px solid var(--border);
   border-radius: 2rem;
-  background: #fffaf1;
-  border: 1px solid rgba(124, 82, 35, 0.16);
-  box-shadow: 0 20px 60px rgba(72, 44, 15, 0.08);
+  background: var(--surface);
+  box-shadow: var(--shadow);
 }
 
 .hero-panel h2 {
+  color: var(--ink);
   font-size: clamp(2rem, 5vw, 4rem);
   letter-spacing: -0.05em;
-  color: #2f2113;
 }
 
 .summary-text,
 .body-copy,
 .learning-steps,
 .progress-card p {
+  color: var(--ink-muted);
   line-height: 1.75;
-  color: #665642;
 }
 
 .summary-text {
@@ -667,8 +685,9 @@ function grammarMeta(item) {
 .chapter-stats div {
   min-width: 82px;
   padding: 1rem;
+  border: 1px solid var(--border);
   border-radius: 1rem;
-  background: #f3e4cd;
+  background: var(--surface-soft);
   text-align: center;
 }
 
@@ -678,13 +697,13 @@ function grammarMeta(item) {
 }
 
 .chapter-stats strong {
+  color: var(--accent-strong);
   font-size: 1.6rem;
-  color: #4b2f13;
 }
 
 .chapter-stats span {
+  color: var(--ink-soft);
   font-size: 0.8rem;
-  color: #7b684f;
 }
 
 .section-tabs {
@@ -696,8 +715,9 @@ function grammarMeta(item) {
   gap: 0.75rem;
   margin: 1rem 0;
   padding: 0.5rem;
+  border: 1px solid rgba(222, 209, 191, 0.68);
   border-radius: 1.25rem;
-  background: rgba(245, 239, 229, 0.86);
+  background: rgba(243, 238, 230, 0.9);
   backdrop-filter: blur(12px);
 }
 
@@ -707,7 +727,7 @@ function grammarMeta(item) {
   border-radius: 1rem;
   padding: 0.85rem 1rem;
   background: transparent;
-  color: #6f5b42;
+  color: var(--ink-muted);
   cursor: pointer;
 }
 
@@ -717,9 +737,9 @@ function grammarMeta(item) {
 
 .section-tabs button.active,
 .filter-bar button.active {
-  background: #6b431d;
-  color: #fff8ed;
-  box-shadow: 0 10px 30px rgba(82, 48, 18, 0.18);
+  background: var(--accent-strong);
+  color: #fff9f0;
+  box-shadow: 0 10px 30px rgba(93, 63, 33, 0.18);
 }
 
 .section-tabs strong,
@@ -756,15 +776,15 @@ function grammarMeta(item) {
 
 .study-card,
 .vocab-card {
-  border: 1px solid rgba(124, 82, 35, 0.14);
+  border: 1px solid var(--border);
   border-radius: 1.25rem;
+  background: var(--surface);
   overflow: hidden;
 }
 
 .card-header,
 .section-heading,
 .vocab-main,
-.vocab-meta,
 .progress-layout,
 .filter-bar {
   display: flex;
@@ -810,8 +830,9 @@ function grammarMeta(item) {
   grid-template-columns: minmax(180px, 0.8fr) 1fr;
   gap: 1rem;
   padding: 0.75rem;
+  border: 1px solid var(--border);
   border-radius: 0.85rem;
-  background: #fbf3e6;
+  background: var(--surface-soft);
 }
 
 .vocab-group + .vocab-group {
@@ -823,7 +844,7 @@ function grammarMeta(item) {
 }
 
 .section-heading span {
-  color: #836d52;
+  color: var(--ink-soft);
   font-size: 0.9rem;
 }
 
@@ -833,13 +854,12 @@ function grammarMeta(item) {
 
 .vocab-card {
   padding: 1rem;
-  background: #fffaf1;
 }
 
 .vocab-card p {
   min-height: 2.4em;
   margin: 0.75rem 0;
-  color: #564734;
+  color: var(--ink-muted);
   line-height: 1.55;
 }
 
@@ -847,21 +867,31 @@ function grammarMeta(item) {
   font-size: 1.2rem;
 }
 
-.vocab-meta {
-  flex-wrap: wrap;
+.vocab-details {
+  display: grid;
   gap: 0.45rem;
+  margin: 0;
 }
 
-.vocab-meta span,
-.case-hints span {
-  display: inline-flex;
-  align-items: center;
-  min-height: 1.7rem;
-  border-radius: 999px;
-  padding: 0.2rem 0.55rem;
-  background: #f1e4d0;
-  color: #6d5639;
-  font-size: 0.8rem;
+.vocab-details div {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+
+.vocab-details dt {
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vocab-details dd {
+  margin: 0;
+  color: var(--ink-muted);
+  line-height: 1.45;
 }
 
 .progress-card {
@@ -879,8 +909,8 @@ function grammarMeta(item) {
 }
 
 .filter-bar button {
-  background: #fffaf1;
-  border: 1px solid rgba(124, 82, 35, 0.14);
+  border: 1px solid var(--border);
+  background: var(--surface);
 }
 
 .exercise-card + .exercise-card {
@@ -891,6 +921,22 @@ function grammarMeta(item) {
   margin-top: 0;
   font-size: 1.05rem;
   line-height: 1.9;
+}
+
+.case-hints {
+  margin-bottom: 1rem;
+}
+
+.case-hints span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  background: var(--surface-soft);
+  color: var(--ink-muted);
+  font-size: 0.8rem;
 }
 
 .answer-control {
@@ -907,8 +953,9 @@ function grammarMeta(item) {
   min-height: 2.5rem;
   margin-right: 0;
   padding: 0.35rem 0.75rem;
+  border: 1px solid var(--border);
   border-radius: 0.75rem;
-  background: #fbf3e6;
+  background: var(--surface-soft);
 }
 
 .feedback-alert {
@@ -924,8 +971,8 @@ function grammarMeta(item) {
   display: inline-block;
   padding: 0.02rem 0.35rem;
   border-radius: 0.45rem;
-  background: #ffe4a8;
-  color: #53340f;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
 }
 
 @keyframes fade-in {
@@ -983,7 +1030,8 @@ function grammarMeta(item) {
     padding: 0.75rem 0.45rem;
   }
 
-  .example-row {
+  .example-row,
+  .vocab-details div {
     grid-template-columns: 1fr;
   }
 
