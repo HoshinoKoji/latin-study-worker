@@ -1,0 +1,24 @@
+.sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(213, 185, 143, 0.46) rgba(47, 42, 34, 0.36);
+  scrollbar-gutter: stable;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 0.65rem;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: rgba(47, 42, 34, 0.36);
+  border-radius: 999px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(213, 185, 143, 0.46);
+  border: 2px solid #2f2a22;
+  border-radius: 999px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(213, 185, 143, 0.68);
+}
