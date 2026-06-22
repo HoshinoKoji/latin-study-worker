@@ -38,6 +38,9 @@ const posLabels = {
   'num.': 'Numbers'
 };
 
+const defaultCases = ['nom.', 'voc.', 'gen.', 'acc.', 'dat.', 'abl.'];
+const defaultNumbers = ['sg.', 'pl.'];
+
 onMounted(async () => {
   loading.value = true;
   errorMessage.value = '';
@@ -193,10 +196,6 @@ function groupLabel(group) {
   return group.label;
 }
 
-function posLabel(pos) {
-  return posLabels[pos] ?? pos ?? 'Other';
-}
-
 function formsDisplay(item) {
   if (item.pos === 'n.') {
     return [item.forms?.nomSg ?? item.latin, item.forms?.genSg].filter(Boolean).join(', ');
@@ -223,6 +222,32 @@ function grammarMeta(item) {
   }
 
   return item.pos ?? '';
+}
+
+function selectChoice(exercise, choice) {
+  answers.value = { ...answers.value, [exercise.id]: choice };
+}
+
+function caseOptions(exercise) {
+  return exercise.caseGrid?.cases ?? defaultCases;
+}
+
+function numberOptions(exercise) {
+  return exercise.caseGrid?.numbers ?? defaultNumbers;
+}
+
+function caseAnswer(exercise, caseName, numberName) {
+  return [caseName, numberName, exercise.caseGrid?.declension, exercise.caseGrid?.gender]
+    .filter(Boolean)
+    .join('; ');
+}
+
+function selectCaseAnswer(exercise, caseName, numberName) {
+  answers.value = { ...answers.value, [exercise.id]: caseAnswer(exercise, caseName, numberName) };
+}
+
+function isSelectedCaseAnswer(exercise, caseName, numberName) {
+  return answers.value[exercise.id] === caseAnswer(exercise, caseName, numberName);
 }
 
 function expectedAnswerText(result) {
@@ -443,24 +468,47 @@ function expectedAnswerText(result) {
                 </template>
               </p>
 
-              <div v-if="exercise.caseGrid" class="case-hints">
-                <span v-for="caseName in exercise.caseGrid.cases" :key="caseName">{{ caseName }}</span>
-                <span v-for="number in exercise.caseGrid.numbers" :key="number">{{ number }}</span>
+              <div v-if="exercise.caseGrid" class="case-context">
                 <span>{{ exercise.caseGrid.declension }}</span>
                 <span>{{ exercise.caseGrid.gender }}</span>
               </div>
 
               <div v-if="exercise.type === 'multiple_choice'" class="answer-control">
-                <el-radio-group v-model="answers[exercise.id]" class="choice-list">
-                  <el-radio
+                <div class="choice-list" role="radiogroup" :aria-label="exerciseLabel(exercise.type)">
+                  <button
                     v-for="choice in exercise.choices"
                     :key="choice"
-                    :label="choice"
-                    class="choice-option"
+                    type="button"
+                    class="choice-button"
+                    :class="{ selected: answers[exercise.id] === choice }"
+                    :aria-pressed="answers[exercise.id] === choice"
+                    @click="selectChoice(exercise, choice)"
                   >
                     {{ choice }}
-                  </el-radio>
-                </el-radio-group>
+                  </button>
+                </div>
+              </div>
+              <div v-else-if="exercise.type === 'case_identification'" class="answer-control">
+                <div class="case-grid" role="grid" aria-label="Choose number and case">
+                  <div class="case-grid-corner" aria-hidden="true"></div>
+                  <div v-for="caseName in caseOptions(exercise)" :key="caseName" class="case-grid-heading">
+                    {{ caseName }}
+                  </div>
+                  <template v-for="numberName in numberOptions(exercise)" :key="numberName">
+                    <div class="case-grid-heading row-heading">{{ numberName }}</div>
+                    <button
+                      v-for="caseName in caseOptions(exercise)"
+                      :key="`${exercise.id}-${numberName}-${caseName}`"
+                      type="button"
+                      class="case-cell"
+                      :class="{ selected: isSelectedCaseAnswer(exercise, caseName, numberName) }"
+                      :aria-pressed="isSelectedCaseAnswer(exercise, caseName, numberName)"
+                      @click="selectCaseAnswer(exercise, caseName, numberName)"
+                    >
+                      {{ numberName }} {{ caseName }}
+                    </button>
+                  </template>
+                </div>
               </div>
               <div v-else-if="exercise.type === 'short_answer'" class="answer-control">
                 <el-input
@@ -537,7 +585,41 @@ function expectedAnswerText(result) {
   --accent-wash: #f1e3d0;
   --sidebar-ink: #f8efe2;
   --sidebar-muted: #cfc1ad;
+  --success: #6f7440;
+  --success-soft: #edf0dc;
+  --danger: #9d4e35;
+  --danger-soft: #f3dfd7;
   --shadow: 0 18px 48px rgba(73, 54, 34, 0.10);
+
+  --el-color-primary: var(--accent-strong);
+  --el-color-primary-dark-2: #553111;
+  --el-color-primary-light-3: #9a7656;
+  --el-color-primary-light-5: #b99d83;
+  --el-color-primary-light-7: #d7c4b2;
+  --el-color-primary-light-8: #e6d8ca;
+  --el-color-primary-light-9: #f3ebe4;
+  --el-color-success: var(--success);
+  --el-color-success-light-3: #9ba06d;
+  --el-color-success-light-5: #b8bc94;
+  --el-color-success-light-7: #d4d7bd;
+  --el-color-success-light-8: #e1e4cf;
+  --el-color-success-light-9: var(--success-soft);
+  --el-color-danger: var(--danger);
+  --el-color-danger-light-3: #bb7e69;
+  --el-color-danger-light-5: #d0a596;
+  --el-color-danger-light-7: #e4cbc2;
+  --el-color-danger-light-8: #ecd8d2;
+  --el-color-danger-light-9: var(--danger-soft);
+  --el-color-warning: #a46f2d;
+  --el-color-info: var(--ink-soft);
+  --el-fill-color-blank: var(--surface);
+  --el-fill-color-light: var(--surface-soft);
+  --el-border-color: var(--border);
+  --el-border-color-light: var(--border);
+  --el-border-color-lighter: #e8dfd2;
+  --el-text-color-primary: var(--ink);
+  --el-text-color-regular: var(--ink-muted);
+  --el-text-color-secondary: var(--ink-soft);
 
   min-height: 100vh;
   display: grid;
@@ -800,8 +882,7 @@ function expectedAnswerText(result) {
 }
 
 .keyword-cloud,
-.example-list,
-.case-hints {
+.example-list {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
@@ -923,11 +1004,14 @@ function expectedAnswerText(result) {
   line-height: 1.9;
 }
 
-.case-hints {
+.case-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   margin-bottom: 1rem;
 }
 
-.case-hints span {
+.case-context span {
   display: inline-flex;
   align-items: center;
   min-height: 1.7rem;
@@ -949,13 +1033,74 @@ function expectedAnswerText(result) {
   align-items: stretch;
 }
 
-.choice-option {
-  min-height: 2.5rem;
-  margin-right: 0;
-  padding: 0.35rem 0.75rem;
+.choice-button,
+.case-cell {
+  width: 100%;
   border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border-radius: 0.85rem;
   background: var(--surface-soft);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+
+.choice-button {
+  min-height: 2.75rem;
+  padding: 0.7rem 0.85rem;
+}
+
+.choice-button:hover,
+.case-cell:hover {
+  border-color: var(--border-strong);
+  background: var(--accent-wash);
+}
+
+.choice-button.selected,
+.case-cell.selected {
+  border-color: var(--accent-strong);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent-strong);
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+.case-grid {
+  display: grid;
+  grid-template-columns: 4rem repeat(6, minmax(4.5rem, 1fr));
+  gap: 0.4rem;
+  overflow-x: auto;
+}
+
+.case-grid-corner,
+.case-grid-heading,
+.case-cell {
+  min-width: 4.5rem;
+}
+
+.case-grid-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.3rem;
+  border-radius: 0.75rem;
+  background: var(--surface-muted);
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.case-grid-heading.row-heading {
+  color: var(--ink-muted);
+}
+
+.case-cell {
+  min-height: 2.7rem;
+  padding: 0.45rem 0.5rem;
+  text-align: center;
 }
 
 .feedback-alert {
@@ -973,6 +1118,27 @@ function expectedAnswerText(result) {
   border-radius: 0.45rem;
   background: var(--accent-soft);
   color: var(--accent-strong);
+}
+
+:deep(.el-button--primary) {
+  --el-button-bg-color: var(--accent-strong);
+  --el-button-border-color: var(--accent-strong);
+  --el-button-hover-bg-color: var(--accent);
+  --el-button-hover-border-color: var(--accent);
+  --el-button-active-bg-color: #553111;
+  --el-button-active-border-color: #553111;
+}
+
+:deep(.el-input__wrapper),
+:deep(.el-textarea__inner) {
+  background: var(--surface-soft);
+  border-color: var(--border);
+  box-shadow: 0 0 0 1px var(--border) inset;
+}
+
+:deep(.el-input__wrapper.is-focus),
+:deep(.el-textarea__inner:focus) {
+  box-shadow: 0 0 0 1px var(--accent-strong) inset;
 }
 
 @keyframes fade-in {
@@ -1033,6 +1199,15 @@ function expectedAnswerText(result) {
   .example-row,
   .vocab-details div {
     grid-template-columns: 1fr;
+  }
+
+  .case-grid {
+    grid-template-columns: 3.5rem repeat(6, minmax(4rem, 1fr));
+  }
+
+  .case-grid-heading,
+  .case-cell {
+    font-size: 0.72rem;
   }
 
   .progress-layout {
