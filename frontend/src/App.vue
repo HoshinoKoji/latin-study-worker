@@ -229,11 +229,17 @@ function selectChoice(exercise, choice) {
 }
 
 function caseOptions(exercise) {
-  return exercise.caseGrid?.cases ?? defaultCases;
+  const available = new Set(exercise.caseGrid?.cases ?? defaultCases);
+  const ordered = defaultCases.filter((caseName) => available.has(caseName));
+  const extras = [...available].filter((caseName) => !defaultCases.includes(caseName));
+  return [...ordered, ...extras];
 }
 
 function numberOptions(exercise) {
-  return exercise.caseGrid?.numbers ?? defaultNumbers;
+  const available = new Set(exercise.caseGrid?.numbers ?? defaultNumbers);
+  const ordered = defaultNumbers.filter((numberName) => available.has(numberName));
+  const extras = [...available].filter((numberName) => !defaultNumbers.includes(numberName));
+  return [...ordered, ...extras];
 }
 
 function caseAnswer(exercise, caseName, numberName) {
@@ -557,8 +563,8 @@ function expectedAnswerText(result) {
 <style scoped>
 :global(body) {
   margin: 0;
-  background: var(--page-bg);
-  color: var(--ink);
+  background: #f3eee6;
+  color: #302820;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
