@@ -7,6 +7,7 @@ import vue from '@vitejs/plugin-vue';
 // wrangler.toml.
 export default defineConfig({
   root: 'frontend',
+  publicDir: '../public',
   plugins: [vue()],
   build: {
     outDir: '../dist',
