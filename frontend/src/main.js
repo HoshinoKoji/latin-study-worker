@@ -1,0 +1,1 @@
+import { createApp } from 'vue';\nimport ElementPlus from 'element-plus';\nimport 'element-plus/dist/index.css';\nimport App from './App.vue';\n\nconst app = createApp(App);\napp.use(ElementPlus);\napp.mount('#app');\n
